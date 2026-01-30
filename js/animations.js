@@ -291,7 +291,8 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
         // Only apply Z offset when there's actual progress to avoid starting displaced
         if (progress > 0) {
             // Ensure panel 1 is always above panel 2
-            const panel1ZOffset = PANEL_Z_OFFSET * 2 + (easedPanel1 * PANEL_Z_OFFSET);
+            // Use a very small initial offset and scale it with progress to prevent the 4% jump
+            const panel1ZOffset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
             panel1.pivot.position.z = panel1ZOffset;
         } else {
             panel1.pivot.position.z = 0;
