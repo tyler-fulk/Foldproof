@@ -301,6 +301,73 @@ select:focus, input[type="text"]:focus {
     height: auto;
 }
 
+/* Guide Toggles */
+.guide-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.toggle-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.toggle-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-primary);
+    cursor: pointer;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.guide-color {
+    width: 16px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.guide-color.trim {
+    background-color: #ef4444;
+}
+
+.guide-color.bleed {
+    background-color: #f97316;
+}
+
+.guide-color.safe {
+    background-color: #22c55e;
+}
+
+.guide-color.folds {
+    background-color: #3b82f6;
+    height: 3px;
+    border-style: dashed;
+    background: repeating-linear-gradient(
+        90deg,
+        #3b82f6 0px,
+        #3b82f6 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
 /* ========================================
    Buttons
    ======================================== */

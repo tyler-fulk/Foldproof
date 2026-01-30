@@ -10,10 +10,12 @@ import { initFoldCalculator, getCurrentFoldType } from './foldCalculator.js';
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor } from './scene.js';
 import { createFoldMesh, getPaperGroup, disposeMesh } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
+import { initGuides, createGuides, clearGuides } from './guides.js';
 
 // Application state
 let isInitialized = false;
 let currentTextures = { front: null, back: null };
+let currentGuideGroup = null;
 
 /**
  * Initialize the application
@@ -29,6 +31,7 @@ async function init() {
     initSizeParser(onSizeChanged);
     initFoldCalculator(onFoldTypeChanged);
     initAnimations(onProgressUpdate);
+    initGuides();
     
     // Setup theme toggle
     setupThemeToggle();
@@ -97,6 +100,13 @@ function onImagesChanged(images) {
         overlay.hidden = false;
         currentTextures = { front: null, back: null };
         clearMeshes();
+        
+        // Clear guides
+        if (currentGuideGroup) {
+            removeFromScene(currentGuideGroup);
+            clearGuides();
+            currentGuideGroup = null;
+        }
     }
 }
 
@@ -173,6 +183,13 @@ function rebuildMesh() {
         disposeMesh();
     }
     
+    // Clear existing guides
+    if (currentGuideGroup) {
+        removeFromScene(currentGuideGroup);
+        clearGuides();
+        currentGuideGroup = null;
+    }
+    
     // Get current settings
     const size = getCurrentSize();
     
@@ -181,6 +198,15 @@ function rebuildMesh() {
     
     if (paperGroup) {
         addToScene(paperGroup);
+        
+        // Create guides based on paper configuration
+        const panelConfig = paperGroup.userData.panelConfig;
+        if (panelConfig) {
+            currentGuideGroup = createGuides(size, panelConfig);
+            if (currentGuideGroup) {
+                addToScene(currentGuideGroup);
+            }
+        }
         
         // Reset animation to unfolded state
         resetAnimation();
@@ -192,6 +218,7 @@ function rebuildMesh() {
  */
 function cleanup() {
     disposeMesh();
+    clearGuides();
 }
 
 // Initialize when DOM is ready
