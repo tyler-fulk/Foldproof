@@ -360,24 +360,31 @@ select:focus, input[type="text"]:focus {
 
 /* Theme toggle icons */
 .icon-sun, .icon-moon {
-    position: absolute;
-}
-
-[data-theme="dark"] .icon-sun {
+    color: var(--text-primary);
     display: none;
 }
 
-[data-theme="dark"] .icon-moon {
-    display: block;
+/* Light mode: Show sun, hide moon */
+html:not([data-theme="dark"]) .icon-sun {
+    display: block !important;
+}
+html:not([data-theme="dark"]) .icon-moon {
+    display: none !important;
 }
 
-:root:not([data-theme="dark"]) .icon-moon,
-body:not([data-theme="dark"]) .icon-moon {
-    display: none;
+/* Dark mode: Show moon, hide sun */
+html[data-theme="dark"] .icon-sun {
+    display: none !important;
+}
+html[data-theme="dark"] .icon-moon {
+    display: block !important;
 }
 
 #theme-toggle {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ========================================
