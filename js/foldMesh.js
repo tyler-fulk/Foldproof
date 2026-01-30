@@ -421,10 +421,26 @@ function centerGroup(group, panelConfig) {
     // Just ensure Y position is at 0 (on the grid plane)
     group.position.y = 0;
     
-    // If horizontal fold, the pivot positioning might have left it offset in Z
-    // because we rotate the whole group by 90 degrees on X
+    // Reset any previous centering offsets
+    group.position.x = 0;
+    group.position.z = 0;
+    
+    // For horizontal folds, the panels are stacked along the Z axis (after rotation).
+    // We need to shift the whole group to center it on the grid.
     if (!panelConfig.isVertical) {
-        group.position.z = 0;
+        // The total height of the paper is what's being divided into panels.
+        // After 90deg X rotation, this height is along the Z axis.
+        // The current positioning logic puts the top edge at Z = totalHeight/2.
+        // However, if the base panel isn't the center one, it might be offset.
+        
+        // Calculate the bounding box to find the true center
+        const box = new THREE.Box3().setFromObject(group);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+        
+        // Offset the group so its center is at (0,0,0)
+        group.position.x = -center.x;
+        group.position.z = -center.z;
     }
 }
 
