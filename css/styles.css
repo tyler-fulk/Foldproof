@@ -606,6 +606,38 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Scrollbar styling */
+.donation-panel {
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    border-bottom: none;
+    padding: 16px 20px;
+    background-color: var(--bg-secondary);
+}
+
+.kofi-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background-color: #29abe0;
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+}
+
+.kofi-button:hover {
+    background-color: #1a8dbb;
+    transform: translateY(-2px);
+}
+
+.kofi-icon {
+    font-size: 18px;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
