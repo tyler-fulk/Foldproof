@@ -1,4 +1,4 @@
-# Print Fold Visualizer
+# FoldProof - Print Fold Visualizer
 
 A web application for visualizing folded print layouts in 3D. Upload front and back images of your print design, select the paper size and fold type, then preview the result with interactive 3D animations.
 
