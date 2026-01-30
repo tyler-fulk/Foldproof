@@ -334,7 +334,7 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             // But we want to move it UP in world space.
             const zCurve = Math.sin(progress * Math.PI) * 0.2;
             panel0.pivot.position.z = (progress * PANEL_Z_OFFSET) + zCurve;
-            panel0.pivot.position.y = 0;
+            // DO NOT reset position.y here, it contains the layout offset!
         }
     }
     
@@ -349,7 +349,7 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
             const zCurve = Math.sin(progress * Math.PI) * 0.3;
             panel2.pivot.position.z = (progress * PANEL_Z_OFFSET * 2.5) + zCurve;
-            panel2.pivot.position.y = 0;
+            // DO NOT reset position.y here
         }
     }
 }
