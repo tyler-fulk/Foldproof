@@ -276,7 +276,9 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
             panel2.pivot.rotation.x = -easedPanel2 * Math.PI;
         }
         // Panel 2 (inner) gets base offset - ends up between panel 0 and panel 1
-        panel2.pivot.position.z = easedPanel2 * PANEL_Z_OFFSET;
+        // Use nestOffset if provided in panel config
+        const nestOffset = (panel2.pivot.userData.panelConfig && panel2.pivot.userData.panelConfig.nestOffset) || 0;
+        panel2.pivot.position.z = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
     }
     
     if (panel1 && panel1.pivot) {

@@ -240,7 +240,8 @@ function calculateTriFoldRoll(totalLength, panelHeight) {
             foldDirection: -1, // Same direction as panel 1
             foldAngle: Math.PI,
             isBase: false,
-            parentIndex: 1
+            parentIndex: 1,
+            nestOffset: 0.02 // Add slight offset to prevent Z-fighting when folded
         }
     ];
 }

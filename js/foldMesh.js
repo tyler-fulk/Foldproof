@@ -418,8 +418,8 @@ function buildPanelHierarchy(panels) {
  */
 function centerGroup(group, panelConfig) {
     // The group should already be centered due to positioning
-    // Just ensure Y position is slightly above ground
-    group.position.y = 0.5;
+    // Just ensure Y position is at 0 (on the grid plane)
+    group.position.y = 0;
 }
 
 /**
