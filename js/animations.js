@@ -324,7 +324,8 @@ function applyGateFold(panelMeshes, progress, isVertical) {
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
         }
-        // Add Z-offset to prevent clipping
+        // Add Z-offset to prevent clipping with center panel
+        // Scale offset with progress to ensure smooth transition
         panel0.pivot.position.z = progress * PANEL_Z_OFFSET;
     }
     
@@ -334,8 +335,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
         }
-        // Panel 2 on top of panel 0
-        panel2.pivot.position.z = progress * PANEL_Z_OFFSET * 2;
+        // Panel 2 on top of panel 0 (higher Z-offset)
+        // Scale offset with progress to ensure smooth transition
+        panel2.pivot.position.z = progress * PANEL_Z_OFFSET * 2.1;
     }
 }
 
