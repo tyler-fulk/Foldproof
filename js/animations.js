@@ -204,6 +204,8 @@ function applyBiFold(panelMeshes, progress, isVertical) {
             // ADD to base rotation, don't replace it
             panel1.pivot.rotation.x = BASE_ROTATION_X + foldAngle;
         }
+        // Add slight height offset to prevent Z-fighting
+        panel1.pivot.position.y = progress * PANEL_Z_OFFSET;
     }
 }
 
@@ -234,7 +236,7 @@ function applyTriFoldZ(panelMeshes, progress, isVertical) {
         } else {
             panel1.pivot.rotation.x = -foldAngle; // Fold backward (horizontal) - child panels don't need base rotation
         }
-        panel1.pivot.position.z = progress * PANEL_Z_OFFSET;
+        panel1.pivot.position.y = progress * PANEL_Z_OFFSET;
     }
     
     if (panel2 && panel2.pivot) {
@@ -243,7 +245,7 @@ function applyTriFoldZ(panelMeshes, progress, isVertical) {
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold forward (horizontal)
         }
-        panel2.pivot.position.z = progress * PANEL_Z_OFFSET * 2;
+        panel2.pivot.position.y = progress * PANEL_Z_OFFSET * 2;
     }
 }
 
@@ -278,7 +280,7 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
         // Panel 2 (inner) gets base offset - ends up between panel 0 and panel 1
         // Use nestOffset if provided in panel config
         const nestOffset = (panel2.pivot.userData.panelConfig && panel2.pivot.userData.panelConfig.nestOffset) || 0;
-        panel2.pivot.position.z = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
+        panel2.pivot.position.y = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
     }
     
     if (panel1 && panel1.pivot) {
@@ -288,14 +290,14 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
             panel1.pivot.rotation.x = -easedPanel1 * Math.PI;
         }
         // Panel 1 (outer) needs to be above panel 2 during folding
-        // Only apply Z offset when there's actual progress to avoid starting displaced
+        // Only apply height offset when there's actual progress to avoid starting displaced
         if (progress > 0) {
             // Ensure panel 1 is always above panel 2
             // Use a very small initial offset and scale it with progress to prevent the 4% jump
-            const panel1ZOffset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
-            panel1.pivot.position.z = panel1ZOffset;
+            const panel1YOffset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
+            panel1.pivot.position.y = panel1YOffset;
         } else {
-            panel1.pivot.position.z = 0;
+            panel1.pivot.position.y = 0;
         }
     }
 }
@@ -324,10 +326,10 @@ function applyGateFold(panelMeshes, progress, isVertical) {
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
         }
-        // Add Z-offset to prevent clipping with center panel
-        // Use a slight curve in Z to keep it above the base during the whole fold
-        const zCurve = Math.sin(progress * Math.PI) * 0.1;
-        panel0.pivot.position.z = (progress * PANEL_Z_OFFSET) + zCurve;
+        // Add height offset (Y) to prevent clipping with center panel
+        // Use a slight curve in Y to keep it above the base during the whole fold
+        const yCurve = Math.sin(progress * Math.PI) * 0.2;
+        panel0.pivot.position.y = (progress * PANEL_Z_OFFSET) + yCurve;
     }
     
     if (panel2 && panel2.pivot) {
@@ -336,10 +338,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
         }
-        // Panel 2 on top of panel 0 (higher Z-offset)
-        // Add a slightly larger curve to ensure it stays above panel 0
-        const zCurve = Math.sin(progress * Math.PI) * 0.15;
-        panel2.pivot.position.z = (progress * PANEL_Z_OFFSET * 2.5) + zCurve;
+        // Panel 2 on top of panel 0 (higher Y-offset)
+        const yCurve = Math.sin(progress * Math.PI) * 0.3;
+        panel2.pivot.position.y = (progress * PANEL_Z_OFFSET * 2.5) + yCurve;
     }
 }
 
