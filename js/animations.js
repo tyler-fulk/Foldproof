@@ -329,12 +329,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel0.pivot.position.z = 0;
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
-            // For horizontal, "height" is actually Z in the pivot's local space 
-            // because the pivot itself is rotated 90deg on X to lie flat.
-            // But we want to move it UP in world space.
+            // Mirror the vertical fix: Add height offset (Z in local space)
             const zCurve = Math.sin(progress * Math.PI) * 0.2;
             panel0.pivot.position.z = (progress * PANEL_Z_OFFSET) + zCurve;
-            // DO NOT reset position.y here, it contains the layout offset!
         }
     }
     
@@ -347,9 +344,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel2.pivot.position.z = 0;
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
+            // Mirror the vertical fix: Panel 2 on top of panel 0 (higher Z-offset)
             const zCurve = Math.sin(progress * Math.PI) * 0.3;
             panel2.pivot.position.z = (progress * PANEL_Z_OFFSET * 2.5) + zCurve;
-            // DO NOT reset position.y here
         }
     }
 }
