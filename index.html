@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Fold Visualizer - 3D Preview</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Print Fold Visualizer</h1>
+                <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+            </div>
+
+            <!-- Image Upload Section -->
+            <section class="panel">
+                <h2>Upload Images</h2>
+                
+                <div class="upload-group">
+                    <label>Front Side</label>
+                    <div class="upload-zone" id="front-upload-zone" data-side="front">
+                        <input type="file" id="front-image" accept="image/*,.pdf" hidden>
+                        <div class="upload-placeholder">
+                            <span class="upload-icon">📄</span>
+                            <span class="upload-text">Drop front image or PDF<br>or click to browse</span>
+                        </div>
+                        <div class="upload-preview" hidden>
+                            <img id="front-preview" alt="Front preview">
+                            <button type="button" class="remove-btn" data-side="front" title="Remove" onclick="event.stopPropagation(); window.removeUploadedImage('front');">×</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-group">
+                    <label>Back Side</label>
+                    <div class="upload-zone" id="back-upload-zone" data-side="back">
+                        <input type="file" id="back-image" accept="image/*,.pdf" hidden>
+                        <div class="upload-placeholder">
+                            <span class="upload-icon">📄</span>
+                            <span class="upload-text">Drop back image or PDF<br>or click to browse</span>
+                        </div>
+                        <div class="upload-preview" hidden>
+                            <img id="back-preview" alt="Back preview">
+                            <button type="button" class="remove-btn" data-side="back" title="Remove" onclick="event.stopPropagation(); window.removeUploadedImage('back');">×</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Size Selection Section -->
+            <section class="panel">
+                <h2>Paper Size</h2>
+                
+                <div class="form-group">
+                    <label for="size-preset">Preset Sizes</label>
+                    <select id="size-preset">
+                        <option value="letter">8.5" × 11" (Letter)</option>
+                        <option value="legal">8.5" × 14" (Legal)</option>
+                        <option value="tabloid">11" × 17" (Tabloid)</option>
+                        <option value="a4">210mm × 297mm (A4)</option>
+                        <option value="a3">297mm × 420mm (A3)</option>
+                        <option value="custom">Custom Size...</option>
+                    </select>
+                </div>
+
+                <div class="form-row custom-size-inputs" id="custom-size-section" hidden>
+                    <div class="form-group">
+                        <label for="custom-width">Width</label>
+                        <input type="text" id="custom-width" placeholder='e.g., 16 5/16"'>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom-height">Height</label>
+                        <input type="text" id="custom-height" placeholder='e.g., 8 7/16"'>
+                    </div>
+                    <button id="apply-custom-size" class="btn btn-secondary">Apply</button>
+                </div>
+
+                <div class="size-display">
+                    <span id="current-size">8.5" × 11"</span>
+                </div>
+            </section>
+
+            <!-- Fold Type Section -->
+            <section class="panel">
+                <h2>Fold Type</h2>
+                
+                <div class="form-group">
+                    <label for="fold-type">Fold Style</label>
+                    <select id="fold-type">
+                        <option value="bi-fold">Bi-Fold</option>
+                        <option value="tri-fold-z">Tri-Fold Z-Fold (Accordion)</option>
+                        <option value="tri-fold-roll">Tri-Fold Roll (Letter)</option>
+                        <option value="gate-fold">Gate Fold</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="fold-orientation">Orientation</label>
+                    <select id="fold-orientation">
+                        <option value="vertical">Vertical (Left-Right fold)</option>
+                        <option value="horizontal">Horizontal (Top-Bottom fold)</option>
+                    </select>
+                </div>
+
+                <div class="fold-diagram" id="fold-diagram">
+                    <!-- SVG diagram will be rendered here -->
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Viewport -->
+        <main class="viewport">
+            <div class="viewport-container">
+                <canvas id="three-canvas"></canvas>
+                <div class="viewport-overlay" id="viewport-overlay">
+                    <span>Upload front and back images to preview</span>
+                </div>
+            </div>
+
+            <!-- Animation Controls -->
+            <div class="controls-bar">
+                <div class="controls-left">
+                    <button id="btn-unfold" class="btn btn-primary" title="Unfold">
+                        <span>📖 Unfold</span>
+                    </button>
+                    <button id="btn-fold" class="btn btn-primary" title="Fold">
+                        <span>📕 Fold</span>
+                    </button>
+                    <button id="btn-play-pause" class="btn btn-secondary" title="Play/Pause Animation">
+                        <span id="play-icon">▶️</span>
+                        <span id="pause-icon" hidden>⏸️</span>
+                    </button>
+                </div>
+
+                <div class="controls-center">
+                    <label for="fold-progress">Fold Progress</label>
+                    <input type="range" id="fold-progress" min="0" max="100" value="0">
+                    <span id="fold-progress-label">0%</span>
+                </div>
+
+                <div class="controls-right">
+                    <label for="animation-speed">Speed</label>
+                    <input type="range" id="animation-speed" min="0.1" max="3" step="0.1" value="1">
+                    <span id="speed-label">1x</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs" type="module"></script>
+    
+    <!-- Import Map for ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+            "pdfjs-dist": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs"
+        }
+    }
+    </script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
