@@ -317,8 +317,8 @@ function positionPivot(pivot, panel, panelConfig, scaledPanelWidth, scaledPanelH
         }
         
         pivot.position.x = 0;
-        pivot.position.y = pivotY;
-        pivot.position.z = 0;
+        pivot.position.y = 0; // Set Y to 0 for horizontal folds
+        pivot.position.z = -pivotY; // Move the Y offset to Z because of the 90deg X rotation
         
         // Rotate to lie flat (front facing up)
         pivot.rotation.x = Math.PI / 2;
@@ -420,6 +420,12 @@ function centerGroup(group, panelConfig) {
     // The group should already be centered due to positioning
     // Just ensure Y position is at 0 (on the grid plane)
     group.position.y = 0;
+    
+    // If horizontal fold, the pivot positioning might have left it offset in Z
+    // because we rotate the whole group by 90 degrees on X
+    if (!panelConfig.isVertical) {
+        group.position.z = 0;
+    }
 }
 
 /**
