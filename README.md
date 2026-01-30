@@ -131,7 +131,3 @@ Then open `http://localhost:8080` in your browser.
 - Vanilla JavaScript (ES6 Modules)
 - Three.js for 3D rendering
 - No build step required
-
-## License
-
-MIT License - Feel free to use and modify for your projects.
