@@ -323,24 +323,34 @@ function applyGateFold(panelMeshes, progress, isVertical) {
     if (panel0 && panel0.pivot) {
         if (isVertical) {
             panel0.pivot.rotation.y = -foldAngle; // Fold right (inward)
+            // Add height offset (Y) to prevent clipping with center panel
+            const yCurve = Math.sin(progress * Math.PI) * 0.2;
+            panel0.pivot.position.y = (progress * PANEL_Z_OFFSET) + yCurve;
+            panel0.pivot.position.z = 0;
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
+            // For horizontal, "height" is actually Z in the pivot's local space 
+            // because the pivot itself is rotated 90deg on X to lie flat.
+            // But we want to move it UP in world space.
+            const zCurve = Math.sin(progress * Math.PI) * 0.2;
+            panel0.pivot.position.z = (progress * PANEL_Z_OFFSET) + zCurve;
+            panel0.pivot.position.y = 0;
         }
-        // Add height offset (Y) to prevent clipping with center panel
-        // Use a slight curve in Y to keep it above the base during the whole fold
-        const yCurve = Math.sin(progress * Math.PI) * 0.2;
-        panel0.pivot.position.y = (progress * PANEL_Z_OFFSET) + yCurve;
     }
     
     if (panel2 && panel2.pivot) {
         if (isVertical) {
             panel2.pivot.rotation.y = foldAngle; // Fold left (inward)
+            // Panel 2 on top of panel 0 (higher Y-offset)
+            const yCurve = Math.sin(progress * Math.PI) * 0.3;
+            panel2.pivot.position.y = (progress * PANEL_Z_OFFSET * 2.5) + yCurve;
+            panel2.pivot.position.z = 0;
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
+            const zCurve = Math.sin(progress * Math.PI) * 0.3;
+            panel2.pivot.position.z = (progress * PANEL_Z_OFFSET * 2.5) + zCurve;
+            panel2.pivot.position.y = 0;
         }
-        // Panel 2 on top of panel 0 (higher Y-offset)
-        const yCurve = Math.sin(progress * Math.PI) * 0.3;
-        panel2.pivot.position.y = (progress * PANEL_Z_OFFSET * 2.5) + yCurve;
     }
 }
 
