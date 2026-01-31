@@ -91,7 +91,7 @@ html, body {
     background-color: var(--bg-secondary);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 200;
 }
 
 .sidebar-header h1 {
@@ -120,11 +120,54 @@ html, body {
    ======================================== */
 
 .upload-group {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
-.upload-group:last-child {
-    margin-bottom: 0;
+.upload-zones-gap {
+    position: relative;
+    min-height: 60px;
+    margin: 0 0 8px 0;
+}
+
+.upload-zones-gap .upload-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.swap-images-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swap-images-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.swap-images-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: var(--bg-primary);
 }
 
 .upload-group > label {
@@ -194,7 +237,7 @@ html, body {
 
 .remove-btn {
     position: absolute;
-    top: 8px;
+    bottom: 8px;
     right: 8px;
     width: 28px;
     height: 28px;
@@ -209,7 +252,7 @@ html, body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
-    z-index: 100;
+    z-index: 5;
     pointer-events: auto;
 }
 

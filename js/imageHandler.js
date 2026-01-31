@@ -71,6 +71,7 @@ export function initImageHandler(onImageChange) {
     setupUploadZone('front');
     setupUploadZone('back');
     setupAutofitToggle();
+    setupSwapButton();
     
     // Global event delegation for remove buttons - more reliable than per-element listeners
     document.addEventListener('click', (e) => {
@@ -447,6 +448,56 @@ function updatePreview(side, dataUrl) {
     previewImg.src = dataUrl;
     placeholder.hidden = true;
     preview.hidden = false;
+}
+
+/**
+ * Swap front and back images
+ */
+function swapImages() {
+    const front = uploadedImages.front;
+    const back = uploadedImages.back;
+    if (!front && !back) return;
+
+    uploadedImages.front = back;
+    uploadedImages.back = front;
+
+    const frontPreview = document.getElementById('front-preview');
+    const backPreview = document.getElementById('back-preview');
+    const frontZone = document.getElementById('front-upload-zone');
+    const backZone = document.getElementById('back-upload-zone');
+
+    if (front && back) {
+        const frontSrc = frontPreview.src;
+        const backSrc = backPreview.src;
+        frontPreview.src = backSrc;
+        backPreview.src = frontSrc;
+    } else if (front) {
+        frontPreview.src = '';
+        frontZone.querySelector('.upload-placeholder').hidden = false;
+        frontZone.querySelector('.upload-preview').hidden = true;
+        backPreview.src = front.dataUrl;
+        backZone.querySelector('.upload-placeholder').hidden = true;
+        backZone.querySelector('.upload-preview').hidden = false;
+    } else if (back) {
+        backPreview.src = '';
+        backZone.querySelector('.upload-placeholder').hidden = false;
+        backZone.querySelector('.upload-preview').hidden = true;
+        frontPreview.src = back.dataUrl;
+        frontZone.querySelector('.upload-placeholder').hidden = true;
+        frontZone.querySelector('.upload-preview').hidden = false;
+    }
+
+    notifyImageChange();
+}
+
+/**
+ * Setup swap button click handler
+ */
+function setupSwapButton() {
+    const btn = document.getElementById('swap-images-btn');
+    if (btn) {
+        btn.addEventListener('click', () => swapImages());
+    }
 }
 
 /**
