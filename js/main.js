@@ -7,8 +7,8 @@ import * as THREE from 'three';
 import { initImageHandler, getImages, hasAllImages, createTexture, getAutofitEnabled, getImageDimensionsInInches } from './imageHandler.js';
 import { initSizeParser, getCurrentSize, setSizeFromDimensions } from './sizeParser.js';
 import { initFoldCalculator, getCurrentFoldType } from './foldCalculator.js';
-import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor } from './scene.js';
-import { createFoldMesh, getPaperGroup, disposeMesh } from './foldMesh.js';
+import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor, getGridHelper } from './scene.js';
+import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
 import { initGuides, createGuides, clearGuides } from './guides.js';
 import { initExport } from './exportViewport.js';
@@ -34,6 +34,8 @@ async function init() {
     initAnimations(onProgressUpdate);
     initGuides();
     initExport();
+    setupReflectToggles();
+    setupGridToggle();
     
     // Setup theme toggle
     setupThemeToggle();
@@ -177,6 +179,42 @@ function onFoldTypeChanged(foldType) {
     }
 }
 
+function getReflectState() {
+    return {
+        reflectFront: document.getElementById('reflect-front')?.checked ?? false,
+        reflectBack: document.getElementById('reflect-back')?.checked ?? false
+    };
+}
+
+function setupGridToggle() {
+    const gridToggle = document.getElementById('guide-grid');
+    if (gridToggle) {
+        gridToggle.addEventListener('change', (e) => {
+            const grid = getGridHelper();
+            if (grid) grid.visible = e.target.checked;
+        });
+    }
+}
+
+function setupReflectToggles() {
+    const reflectFront = document.getElementById('reflect-front');
+    const reflectBack = document.getElementById('reflect-back');
+    if (reflectFront) {
+        reflectFront.addEventListener('change', () => {
+            if (hasAnyImages()) {
+                updateTextures(currentTextures, getReflectState());
+            }
+        });
+    }
+    if (reflectBack) {
+        reflectBack.addEventListener('change', () => {
+            if (hasAnyImages()) {
+                updateTextures(currentTextures, getReflectState());
+            }
+        });
+    }
+}
+
 /**
  * Handle animation progress updates
  * @param {number} progress 
@@ -217,9 +255,10 @@ function rebuildMesh() {
     
     // Get current settings
     const size = getCurrentSize();
+    const reflectOptions = getReflectState();
     
     // Create new mesh
-    const paperGroup = createFoldMesh(size, currentTextures);
+    const paperGroup = createFoldMesh(size, currentTextures, reflectOptions);
     
     if (paperGroup) {
         addToScene(paperGroup);

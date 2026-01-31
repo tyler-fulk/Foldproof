@@ -412,28 +412,37 @@ function createRulerGuides(size) {
     return { ruler: rulerGroup, labels: labelsGroup };
 }
 
+// High-DPI scale for crisp text when zoomed
+const TEXTURE_DPI_SCALE = 4;
+
 /**
- * Create a text sprite for labels
+ * Create a text sprite for labels (high-res for sharp rendering when zoomed)
  * @param {string} text - Text to display
  * @param {number} color - Color of text
  * @returns {THREE.Sprite}
  */
 function createTextSprite(text, color) {
+    const baseWidth = 128;
+    const baseHeight = 64;
     const canvas = document.createElement('canvas');
+    canvas.width = baseWidth * TEXTURE_DPI_SCALE;
+    canvas.height = baseHeight * TEXTURE_DPI_SCALE;
     const context = canvas.getContext('2d');
-    canvas.width = 128;
-    canvas.height = 64;
     
-    // Convert hex color to CSS color
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    
     const cssColor = '#' + color.toString(16).padStart(6, '0');
-    
     context.fillStyle = cssColor;
-    context.font = 'bold 32px Arial';
+    context.font = `bold ${32 * TEXTURE_DPI_SCALE}px Arial, sans-serif`;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
     context.fillText(text, canvas.width / 2, canvas.height / 2);
     
     const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = true;
     texture.needsUpdate = true;
     
     const material = new THREE.SpriteMaterial({

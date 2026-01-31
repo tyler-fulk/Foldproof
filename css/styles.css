@@ -368,6 +368,10 @@ select:focus, input[type="text"]:focus {
     );
 }
 
+.guide-color.grid {
+    background-color: #888888;
+}
+
 .guide-color.ruler {
     background-color: #8b5cf6;
     height: 3px;
@@ -465,6 +469,17 @@ select:focus, input[type="text"]:focus {
 .autofit-tooltip-box.visible {
     opacity: 1;
     visibility: visible;
+}
+
+.reflect-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.reflect-toggles .toggle-item {
+    flex: 1;
+    min-width: 0;
 }
 
 .toggle-submenu .slider-row {

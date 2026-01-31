@@ -65,13 +65,24 @@
                 </div>
 
                 <label class="toggle-item" style="margin-top: 12px;">
-                    <input type="checkbox" id="autofit-image" checked>
+                    <input type="checkbox" id="autofit-image">
                     <span class="toggle-label">Autofit image</span>
                     <span class="autofit-tooltip-wrap" id="autofit-tooltip-trigger">
                         <span class="autofit-tooltip">?</span>
                         <span class="autofit-tooltip-box" id="autofit-tooltip-box"><strong>Enabled:</strong> Paper size uses your preset or custom dimensions.<br><br><strong>Disabled:</strong> Paper size is taken from the uploaded file (e.g. a 1″×1″ PDF displays at 1″×1″).</span>
                     </span>
                 </label>
+
+                <div class="reflect-toggles" style="margin-top: 8px;">
+                    <label class="toggle-item">
+                        <input type="checkbox" id="reflect-front">
+                        <span class="toggle-label">Reflect front</span>
+                    </label>
+                    <label class="toggle-item">
+                        <input type="checkbox" id="reflect-back">
+                        <span class="toggle-label">Reflect back</span>
+                    </label>
+                </div>
             </section>
 
             <!-- Size Selection Section -->
@@ -201,6 +212,14 @@
                             </span>
                         </label>
                     </div>
+                    
+                    <label class="toggle-item">
+                        <input type="checkbox" id="guide-grid" checked>
+                        <span class="toggle-label">
+                            <span class="guide-color grid"></span>
+                            Grid
+                        </span>
+                    </label>
                 </div>
             </section>
 

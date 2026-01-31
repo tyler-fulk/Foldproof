@@ -20,9 +20,11 @@ let panelMeshes = [];
  * Create the folded paper mesh
  * @param {Object} size - Paper size { width, height }
  * @param {Object} textures - { front: THREE.Texture, back: THREE.Texture }
+ * @param {Object} options - { reflectFront: boolean, reflectBack: boolean }
  * @returns {THREE.Group} The paper mesh group
  */
-export function createFoldMesh(size, textures) {
+export function createFoldMesh(size, textures, options = {}) {
+    const { reflectFront = false, reflectBack = false } = options;
     // Calculate panel configuration
     const panelConfig = calculatePanels(size);
     
@@ -32,7 +34,7 @@ export function createFoldMesh(size, textures) {
     
     // Create each panel
     panelConfig.panels.forEach((panel, index) => {
-        const panelMesh = createPanel(panel, panelConfig, textures);
+        const panelMesh = createPanel(panel, panelConfig, textures, { reflectFront, reflectBack });
         panelMeshes.push(panelMesh);
     });
     
@@ -60,13 +62,30 @@ export function createFoldMesh(size, textures) {
 }
 
 /**
+ * Apply horizontal flip to a texture (clone to avoid mutating original)
+ * @param {THREE.Texture} texture - Source texture
+ * @returns {THREE.Texture} Cloned texture with flip applied, or null
+ */
+function cloneTextureWithFlip(texture) {
+    if (!texture) return null;
+    const clone = texture.clone();
+    clone.wrapS = THREE.RepeatWrapping;
+    clone.wrapT = clone.wrapT || THREE.ClampToEdgeWrapping;
+    clone.repeat.x = -1;
+    clone.offset.x = 1;
+    return clone;
+}
+
+/**
  * Create a single panel mesh
  * @param {Object} panel - Panel configuration
  * @param {Object} panelConfig - Full panel config
  * @param {Object} textures - Front and back textures
+ * @param {Object} options - { reflectFront, reflectBack }
  * @returns {Object} Panel mesh with pivot
  */
-function createPanel(panel, panelConfig, textures) {
+function createPanel(panel, panelConfig, textures, options = {}) {
+    const { reflectFront = false, reflectBack = false } = options;
     const isHorizontalFold = !panelConfig.isVertical;
     
     // panel.width is the dimension along the fold direction
@@ -89,8 +108,12 @@ function createPanel(panel, panelConfig, textures) {
     applyUVs(geometry, uvs, isHorizontalFold);
     
     // Create materials for front and back (sides swapped: front upload shows on back mesh, back upload on front mesh)
+    // Reflect buttons match user's view: reflectFront flips back mesh (shows front upload), reflectBack flips front mesh (shows back upload)
+    const frontTexture = reflectBack && textures.back ? cloneTextureWithFlip(textures.back) : textures.back || null;
+    const backTexture = reflectFront && textures.front ? cloneTextureWithFlip(textures.front) : textures.front || null;
+
     const frontMaterial = new THREE.MeshStandardMaterial({
-        map: textures.back || null,
+        map: frontTexture,
         color: textures.back ? 0xffffff : 0xf5f5f5,
         side: THREE.FrontSide,
         roughness: 0.8,
@@ -98,7 +121,7 @@ function createPanel(panel, panelConfig, textures) {
     });
     
     const backMaterial = new THREE.MeshStandardMaterial({
-        map: textures.front || null,
+        map: backTexture,
         color: textures.front ? 0xffffff : 0xe8e8e8,
         side: THREE.FrontSide,
         roughness: 0.8,
@@ -463,17 +486,26 @@ export function getPanelMeshes() {
 /**
  * Update textures on existing mesh
  * @param {Object} textures - { front, back }
+ * @param {Object} options - { reflectFront, reflectBack }
  */
-export function updateTextures(textures) {
+export function updateTextures(textures, options = {}) {
     if (!panelMeshes || panelMeshes.length === 0) return;
     
+    const { reflectFront = false, reflectBack = false } = options;
+    const frontTexture = reflectBack && textures.back ? cloneTextureWithFlip(textures.back) : textures.back || null;
+    const backTexture = reflectFront && textures.front ? cloneTextureWithFlip(textures.front) : textures.front || null;
+
     panelMeshes.forEach(meshData => {
-        if (meshData.frontMesh && textures.back) {
-            meshData.frontMesh.material.map = textures.back;
+        if (meshData.frontMesh) {
+            const oldMap = meshData.frontMesh.material.map;
+            if (oldMap && oldMap !== textures.back && oldMap !== textures.front) oldMap.dispose();
+            meshData.frontMesh.material.map = frontTexture;
             meshData.frontMesh.material.needsUpdate = true;
         }
-        if (meshData.backMesh && textures.front) {
-            meshData.backMesh.material.map = textures.front;
+        if (meshData.backMesh) {
+            const oldMap = meshData.backMesh.material.map;
+            if (oldMap && oldMap !== textures.back && oldMap !== textures.front) oldMap.dispose();
+            meshData.backMesh.material.map = backTexture;
             meshData.backMesh.material.needsUpdate = true;
         }
     });

@@ -5,6 +5,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { InfiniteGridHelper } from './infiniteGrid.js';
 
 // Export THREE for other modules
 export { THREE };
@@ -150,10 +151,11 @@ function setupControls() {
  * Add helper objects to the scene
  */
 function addHelpers() {
-    gridHelper = new THREE.GridHelper(20, 20, 0xcccccc, 0xe0e0e0);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 0x8a8aaa : 0x888888;
+    gridHelper = new InfiniteGridHelper(1, 10, gridColor, 100);
+    gridHelper.name = 'helper';
     gridHelper.position.y = -0.01;
-    gridHelper.material.opacity = 0.3;
-    gridHelper.material.transparent = true;
     scene.add(gridHelper);
 }
 
@@ -166,6 +168,10 @@ export function updateBackgroundColor() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const bgColor = isDark ? SCENE_CONFIG.backgroundColorDark : SCENE_CONFIG.backgroundColor;
     scene.background = new THREE.Color(bgColor);
+
+    if (gridHelper && gridHelper.material.uniforms) {
+        gridHelper.material.uniforms.uColor.value.setHex(isDark ? 0x8a8aaa : 0x888888);
+    }
 }
 
 /**

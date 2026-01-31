@@ -53,7 +53,7 @@ const uploadedImages = {
 };
 
 // Autofit: when true, use paper size from sidebar; when false, use image dimensions
-let autofitEnabled = true;
+let autofitEnabled = false;
 
 // Callbacks for when images change
 let onImageChangeCallback = null;
