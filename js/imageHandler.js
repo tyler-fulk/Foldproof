@@ -13,7 +13,8 @@ const SUPPORTED_IMAGE_FORMATS = [
     'image/jpg',
     'image/webp',
     'image/bmp',
-    'image/tiff'
+    'image/tiff',
+    'image/svg+xml'
 ];
 
 // PDF format
@@ -51,8 +52,14 @@ const uploadedImages = {
     back: null
 };
 
+// Autofit: when true, use paper size from sidebar; when false, use image dimensions
+let autofitEnabled = true;
+
 // Callbacks for when images change
 let onImageChangeCallback = null;
+
+// Default DPI for raster images when converting pixels to inches
+const DEFAULT_IMAGE_DPI = 96;
 
 /**
  * Initialize the image handler
@@ -63,6 +70,7 @@ export function initImageHandler(onImageChange) {
     
     setupUploadZone('front');
     setupUploadZone('back');
+    setupAutofitToggle();
     
     // Global event delegation for remove buttons - more reliable than per-element listeners
     document.addEventListener('click', (e) => {
@@ -76,6 +84,55 @@ export function initImageHandler(onImageChange) {
             }
         }
     }, true); // Capture phase to intercept before other handlers
+}
+
+function setupAutofitToggle() {
+    const checkbox = document.getElementById('autofit-image');
+    if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+            autofitEnabled = e.target.checked;
+            notifyImageChange();
+        });
+    }
+
+    setupAutofitTooltip();
+}
+
+function setupAutofitTooltip() {
+    const trigger = document.getElementById('autofit-tooltip-trigger');
+    const tooltip = document.getElementById('autofit-tooltip-box');
+    if (!trigger || !tooltip) return;
+
+    const TOOLTIP_OFFSET = 8;
+    const VIEWPORT_PADDING = 12;
+
+    trigger.addEventListener('mouseenter', () => {
+        tooltip.classList.add('visible');
+        requestAnimationFrame(() => {
+            positionTooltip();
+        });
+    });
+
+    trigger.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+    });
+
+    function positionTooltip() {
+        const triggerRect = trigger.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const tooltipWidth = 320;
+        const tooltipHeight = 80;
+
+        let left = triggerRect.left + (triggerRect.width / 2) - (tooltipWidth / 2);
+        left = Math.max(VIEWPORT_PADDING, Math.min(left, viewportWidth - tooltipWidth - VIEWPORT_PADDING));
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${triggerRect.bottom + TOOLTIP_OFFSET}px`;
+    }
+}
+
+export function getAutofitEnabled() {
+    return autofitEnabled;
 }
 
 /**
@@ -150,6 +207,12 @@ async function handleFile(file, side) {
         return;
     }
     
+    // Handle SVG files (parse for physical dimensions)
+    if (file.type === 'image/svg+xml') {
+        await handleSvgFile(file, side);
+        return;
+    }
+    
     // Handle regular image files
     handleImageFile(file, side);
 }
@@ -168,10 +231,15 @@ function handleImageFile(file, side) {
         // Create an image to get dimensions
         const img = new Image();
         img.onload = () => {
+            const widthInches = img.width / DEFAULT_IMAGE_DPI;
+            const heightInches = img.height / DEFAULT_IMAGE_DPI;
+
             uploadedImages[side] = {
                 dataUrl: dataUrl,
                 width: img.width,
                 height: img.height,
+                widthInches,
+                heightInches,
                 file: file,
                 isPdf: false
             };
@@ -187,6 +255,76 @@ function handleImageFile(file, side) {
     };
     
     reader.readAsDataURL(file);
+}
+
+/**
+ * Parse SVG for width/height in physical units (in, pt)
+ * @param {string} svgText - SVG file content
+ * @returns {{ widthInches: number, heightInches: number } | null}
+ */
+function parseSvgDimensions(svgText) {
+    const widthMatch = svgText.match(/\bwidth\s*=\s*["']([^"']+)["']/i);
+    const heightMatch = svgText.match(/\bheight\s*=\s*["']([^"']+)["']/i);
+    const viewBoxMatch = svgText.match(/\bviewBox\s*=\s*["']([^"']+)["']/i);
+
+    let widthInches = null;
+    let heightInches = null;
+
+    const parseUnit = (val) => {
+        const num = parseFloat(val);
+        if (isNaN(num)) return null;
+        if (/in/i.test(val)) return num;
+        if (/pt/i.test(val)) return num / 72;
+        return num / DEFAULT_IMAGE_DPI;
+    };
+
+    if (widthMatch) widthInches = parseUnit(widthMatch[1]);
+    if (heightMatch) heightInches = parseUnit(heightMatch[1]);
+
+    if (widthInches && heightInches && widthInches > 0 && heightInches > 0) {
+        return { widthInches, heightInches };
+    }
+    return null;
+}
+
+/**
+ * Handle SVG file upload
+ * @param {File} file - The SVG file
+ * @param {string} side - 'front' or 'back'
+ */
+async function handleSvgFile(file, side) {
+    try {
+        const text = await file.text();
+        const dims = parseSvgDimensions(text);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            const img = new Image();
+            img.onload = () => {
+                const widthInches = dims ? dims.widthInches : img.width / DEFAULT_IMAGE_DPI;
+                const heightInches = dims ? dims.heightInches : img.height / DEFAULT_IMAGE_DPI;
+
+                uploadedImages[side] = {
+                    dataUrl: dataUrl,
+                    width: img.width,
+                    height: img.height,
+                    widthInches,
+                    heightInches,
+                    file: file,
+                    isPdf: false
+                };
+
+                updatePreview(side, dataUrl);
+                notifyImageChange();
+            };
+            img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+    } catch (err) {
+        console.error('Error loading SVG:', err);
+        handleImageFile(file, side);
+    }
 }
 
 /**
@@ -220,6 +358,10 @@ async function handlePdfFile(file, side) {
         const scale = Math.min(2048 / viewport.width, 2048 / viewport.height, 3);
         const scaledViewport = page.getViewport({ scale });
         
+        // PDF dimensions: viewport at scale 1 is in points (72 points = 1 inch)
+        const widthInches = viewport.width / 72;
+        const heightInches = viewport.height / 72;
+        
         // Create canvas to render PDF
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -240,6 +382,8 @@ async function handlePdfFile(file, side) {
             dataUrl: dataUrl,
             width: canvas.width,
             height: canvas.height,
+            widthInches,
+            heightInches,
             file: file,
             isPdf: true,
             pageCount: pdf.numPages
@@ -348,6 +492,16 @@ export function getImages() {
         front: uploadedImages.front,
         back: uploadedImages.back
     };
+}
+
+/**
+ * Get physical dimensions (in inches) from the first available image
+ * @returns {{ width: number, height: number } | null}
+ */
+export function getImageDimensionsInInches() {
+    const img = uploadedImages.front || uploadedImages.back;
+    if (!img || img.widthInches == null || img.heightInches == null) return null;
+    return { width: img.widthInches, height: img.heightInches };
 }
 
 /**

@@ -183,7 +183,7 @@ function greatestCommonDivisor(a, b) {
 }
 
 /**
- * Set the current size
+ * Set the current size (internal)
  * @param {number} width - Width in inches
  * @param {number} height - Height in inches
  */
@@ -227,4 +227,26 @@ export function getCurrentSize() {
  */
 export function getPresets() {
     return SIZE_PRESETS;
+}
+
+/**
+ * Set size from external source (e.g. image dimensions)
+ * Updates preset to custom and syncs UI
+ * @param {number} width - Width in inches
+ * @param {number} height - Height in inches
+ */
+export function setSizeFromDimensions(width, height) {
+    if (width <= 0 || height <= 0) return;
+
+    const sizePreset = document.getElementById('size-preset');
+    const customSection = document.getElementById('custom-size-section');
+    const customWidth = document.getElementById('custom-width');
+    const customHeight = document.getElementById('custom-height');
+
+    if (sizePreset) sizePreset.value = 'custom';
+    if (customSection) customSection.hidden = false;
+    if (customWidth) customWidth.value = width.toString();
+    if (customHeight) customHeight.value = height.toString();
+
+    setSize(width, height);
 }

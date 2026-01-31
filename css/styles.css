@@ -416,6 +416,57 @@ select:focus, input[type="text"]:focus {
     color: var(--text-secondary);
 }
 
+.autofit-tooltip-wrap {
+    position: relative;
+    display: inline-flex;
+    margin-left: 4px;
+}
+
+.autofit-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: var(--bg-tertiary);
+    border-radius: 50%;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.toggle-item:hover .autofit-tooltip,
+.autofit-tooltip-wrap:hover .autofit-tooltip {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.autofit-tooltip-box {
+    position: fixed;
+    padding: 10px 12px;
+    width: 320px;
+    max-width: min(320px, calc(100vw - 2rem));
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-fast), visibility var(--transition-fast);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.autofit-tooltip-box.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
 .toggle-submenu .slider-row {
     display: flex;
     align-items: center;

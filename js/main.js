@@ -4,8 +4,8 @@
  */
 
 import * as THREE from 'three';
-import { initImageHandler, getImages, hasAllImages, createTexture } from './imageHandler.js';
-import { initSizeParser, getCurrentSize } from './sizeParser.js';
+import { initImageHandler, getImages, hasAllImages, createTexture, getAutofitEnabled, getImageDimensionsInInches } from './imageHandler.js';
+import { initSizeParser, getCurrentSize, setSizeFromDimensions } from './sizeParser.js';
 import { initFoldCalculator, getCurrentFoldType } from './foldCalculator.js';
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor } from './scene.js';
 import { createFoldMesh, getPaperGroup, disposeMesh } from './foldMesh.js';
@@ -90,21 +90,36 @@ function onImagesChanged(images) {
     
     if (images.front && images.back) {
         overlay.hidden = true;
-        
-        // Create textures
+
         currentTextures.front = createTextureFromImage(images.front);
         currentTextures.back = createTextureFromImage(images.back);
-        
-        // Rebuild the mesh with new textures
-        rebuildMesh();
+
+        let didSetSizeFromImage = false;
+        if (!getAutofitEnabled()) {
+            const dims = getImageDimensionsInInches();
+            if (dims) {
+                setSizeFromDimensions(dims.width, dims.height);
+                didSetSizeFromImage = true;
+            }
+        }
+
+        if (!didSetSizeFromImage) rebuildMesh();
     } else if (images.front || images.back) {
-        // One image uploaded - show partial preview
         overlay.hidden = true;
-        
+
         currentTextures.front = images.front ? createTextureFromImage(images.front) : null;
         currentTextures.back = images.back ? createTextureFromImage(images.back) : null;
-        
-        rebuildMesh();
+
+        let didSetSizeFromImage = false;
+        if (!getAutofitEnabled()) {
+            const dims = getImageDimensionsInInches();
+            if (dims) {
+                setSizeFromDimensions(dims.width, dims.height);
+                didSetSizeFromImage = true;
+            }
+        }
+
+        if (!didSetSizeFromImage) rebuildMesh();
     } else {
         // No images
         overlay.hidden = false;
