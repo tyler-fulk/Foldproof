@@ -11,6 +11,7 @@ import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBa
 import { createFoldMesh, getPaperGroup, disposeMesh } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
 import { initGuides, createGuides, clearGuides } from './guides.js';
+import { initExport } from './exportViewport.js';
 
 // Application state
 let isInitialized = false;
@@ -32,6 +33,7 @@ async function init() {
     initFoldCalculator(onFoldTypeChanged);
     initAnimations(onProgressUpdate);
     initGuides();
+    initExport();
     
     // Setup theme toggle
     setupThemeToggle();

@@ -14,6 +14,7 @@ let scene = null;
 let camera = null;
 let renderer = null;
 let controls = null;
+let gridHelper = null;
 let animationFrameId = null;
 
 // Scene configuration
@@ -149,8 +150,7 @@ function setupControls() {
  * Add helper objects to the scene
  */
 function addHelpers() {
-    // Subtle grid for reference
-    const gridHelper = new THREE.GridHelper(20, 20, 0xcccccc, 0xe0e0e0);
+    gridHelper = new THREE.GridHelper(20, 20, 0xcccccc, 0xe0e0e0);
     gridHelper.position.y = -0.01;
     gridHelper.material.opacity = 0.3;
     gridHelper.material.transparent = true;
@@ -232,6 +232,14 @@ export function getCamera() {
  */
 export function getRenderer() {
     return renderer;
+}
+
+/**
+ * Get the grid helper
+ * @returns {THREE.GridHelper|null}
+ */
+export function getGridHelper() {
+    return gridHelper;
 }
 
 /**

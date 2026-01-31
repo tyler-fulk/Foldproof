@@ -210,6 +210,39 @@
                 <div class="viewport-overlay" id="viewport-overlay">
                     <span>Upload front and back images to preview</span>
                 </div>
+                
+                <div class="export-toolbar">
+                    <button type="button" id="export-btn" class="export-btn" title="Export viewport">Export</button>
+                    <div class="export-dropdown" id="export-dropdown" hidden>
+                        <div class="export-option">
+                            <label>Format</label>
+                            <select id="export-format">
+                                <option value="jpg">JPG</option>
+                                <option value="png">PNG (transparent)</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+                        <div class="export-option">
+                            <label>
+                                <input type="checkbox" id="export-background" checked>
+                                Show background
+                            </label>
+                        </div>
+                        <div class="export-option">
+                            <label>
+                                <input type="checkbox" id="export-grid" checked>
+                                Show grid
+                            </label>
+                        </div>
+                        <div class="export-option">
+                            <label>
+                                <input type="checkbox" id="export-guides" checked>
+                                Show guides & rulers
+                            </label>
+                        </div>
+                        <button type="button" id="export-apply" class="btn btn-primary">Export</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Animation Controls -->
@@ -251,7 +284,8 @@
         "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
             "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-            "pdfjs-dist": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs"
+            "pdfjs-dist": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs",
+            "jspdf": "https://esm.sh/jspdf@2.5.1"
         }
     }
     </script>
