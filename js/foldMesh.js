@@ -339,9 +339,17 @@ function positionPivot(pivot, panel, panelConfig, scaledPanelWidth, scaledPanelH
                 break;
         }
         
+        // Center the paper when root is at edge (tri-folds). Bi-fold root is already at center.
+        // Tri-fold Z needs slightly more offset (~20/120) than tri-fold roll (19.5/120)
+        let centerOffset = 0;
+        if (panel.pivotEdge !== 'center' && panelConfig.foldType !== 'bi-fold') {
+            centerOffset = panelConfig.foldType === 'tri-fold-z'
+                ? (totalDividedDimension * 20 / 120)
+                : (totalDividedDimension * 19.5 / 120);
+        }
         pivot.position.x = 0;
-        pivot.position.y = 0; // Set Y to 0 for horizontal folds
-        pivot.position.z = -pivotY; // Move the Y offset to Z because of the 90deg X rotation
+        pivot.position.y = 0;
+        pivot.position.z = -pivotY + centerOffset;
         
         // Rotate to lie flat (front facing up)
         pivot.rotation.x = Math.PI / 2;
@@ -440,31 +448,24 @@ function buildPanelHierarchy(panels) {
  * @param {Object} panelConfig 
  */
 function centerGroup(group, panelConfig) {
-    // The group should already be centered due to positioning
-    // Just ensure Y position is at 0 (on the grid plane)
     group.position.y = 0;
-    
-    // Reset any previous centering offsets
     group.position.x = 0;
     group.position.z = 0;
-    
-    // For horizontal folds, the panels are stacked along the Z axis (after rotation).
-    // We need to shift the whole group to center it on the grid.
-    if (!panelConfig.isVertical) {
-        // The total height of the paper is what's being divided into panels.
-        // After 90deg X rotation, this height is along the Z axis.
-        // The current positioning logic puts the top edge at Z = totalHeight/2.
-        // However, if the base panel isn't the center one, it might be offset.
-        
-        // Calculate the bounding box to find the true center
-        const box = new THREE.Box3().setFromObject(group);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
-        
-        // Offset the group so its center is at (0,0,0)
-        group.position.x = -center.x;
-        group.position.z = -center.z;
-    }
+}
+
+/**
+ * Recompute and apply centering after the group is in the scene.
+ * Call this after addToScene so world matrices are correct.
+ * @param {THREE.Group} group 
+ */
+export function recalculatePaperCenter(group) {
+    if (!group) return;
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    group.position.x = -center.x;
+    group.position.z = -center.z;
 }
 
 /**

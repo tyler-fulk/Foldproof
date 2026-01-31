@@ -8,7 +8,7 @@ import { initImageHandler, getImages, hasAllImages, createTexture, getAutofitEna
 import { initSizeParser, getCurrentSize, setSizeFromDimensions } from './sizeParser.js';
 import { initFoldCalculator, getCurrentFoldType } from './foldCalculator.js';
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor, getGridHelper } from './scene.js';
-import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures } from './foldMesh.js';
+import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures, recalculatePaperCenter } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
 import { initGuides, createGuides, clearGuides } from './guides.js';
 import { initExport } from './exportViewport.js';
@@ -276,6 +276,7 @@ function rebuildMesh() {
     
     if (paperGroup) {
         addToScene(paperGroup);
+        recalculatePaperCenter(paperGroup);
         
         // Create guides based on paper configuration
         const panelConfig = paperGroup.userData.panelConfig;

@@ -254,9 +254,14 @@ function applyTriFoldZ(panelMeshes, progress, isVertical) {
         if (isVertical) {
             panel1.pivot.rotation.y = -foldAngle; // Fold backward
         } else {
-            panel1.pivot.rotation.x = -foldAngle; // Fold backward (horizontal) - child panels don't need base rotation
+            panel1.pivot.rotation.x = -foldAngle; // Fold backward (horizontal)
         }
-        panel1.pivot.position.y = progress * PANEL_Z_OFFSET;
+        if (isVertical) {
+            panel1.pivot.position.y = progress * PANEL_Z_OFFSET;
+            panel1.pivot.position.z = 0;
+        } else {
+            panel1.pivot.position.z = -(progress * PANEL_Z_OFFSET);
+        }
     }
     
     if (panel2 && panel2.pivot) {
@@ -265,7 +270,12 @@ function applyTriFoldZ(panelMeshes, progress, isVertical) {
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold forward (horizontal)
         }
-        panel2.pivot.position.y = progress * PANEL_Z_OFFSET * 2;
+        if (isVertical) {
+            panel2.pivot.position.y = progress * PANEL_Z_OFFSET * 2;
+            panel2.pivot.position.z = 0;
+        } else {
+            panel2.pivot.position.z = -(progress * PANEL_Z_OFFSET * 2);
+        }
     }
 }
 
@@ -281,9 +291,12 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
     // Panel 0 is base
     // Panel 2 (inner) folds first, then panel 1 folds over
     // Use staged animation: panel 2 leads, panel 1 follows
+    // Handle negative progress: fold in opposite direction (use abs, flip rotation sign)
+    const absProgress = Math.abs(progress);
+    const sign = progress >= 0 ? 1 : -1;
     
-    const panel1Progress = Math.max(0, (progress - 0.2) / 0.8);
-    const panel2Progress = Math.min(1, progress / 0.8);
+    const panel1Progress = Math.max(0, Math.min(1, (absProgress - 0.2) / 0.8));
+    const panel2Progress = Math.max(0, Math.min(1, absProgress / 0.8));
     
     const easedPanel1 = easeInOutCubic(panel1Progress);
     const easedPanel2 = easeInOutCubic(panel2Progress);
@@ -291,33 +304,47 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
     const panel1 = panelMeshes[1];
     const panel2 = panelMeshes[2];
     
+    // Both panels fold same direction (toward base); negate for opposite fold direction
+    // Vertical: negative Y rotation folds toward base. Horizontal: positive X rotation folds up.
+    const rotMult = isVertical ? -sign : sign;
+    
     if (panel2 && panel2.pivot) {
         if (isVertical) {
-            panel2.pivot.rotation.y = -easedPanel2 * Math.PI;
+            panel2.pivot.rotation.y = rotMult * easedPanel2 * Math.PI;
         } else {
-            panel2.pivot.rotation.x = -easedPanel2 * Math.PI;
+            panel2.pivot.rotation.x = rotMult * easedPanel2 * Math.PI;
         }
-        // Panel 2 (inner) gets base offset - ends up between panel 0 and panel 1
-        // Use nestOffset if provided in panel config
         const nestOffset = (panel2.pivot.userData.panelConfig && panel2.pivot.userData.panelConfig.nestOffset) || 0;
-        panel2.pivot.position.y = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
+        const offsetAmount = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
+        if (isVertical) {
+            panel2.pivot.position.y = offsetAmount;
+            panel2.pivot.position.z = 0;
+        } else {
+            // Horizontal: use position.z for fold offset to avoid overwriting layout position.y
+            panel2.pivot.position.z = -offsetAmount;
+        }
     }
     
     if (panel1 && panel1.pivot) {
         if (isVertical) {
-            panel1.pivot.rotation.y = -easedPanel1 * Math.PI;
+            panel1.pivot.rotation.y = rotMult * easedPanel1 * Math.PI;
         } else {
-            panel1.pivot.rotation.x = -easedPanel1 * Math.PI;
+            panel1.pivot.rotation.x = rotMult * easedPanel1 * Math.PI;
         }
-        // Panel 1 (outer) needs to be above panel 2 during folding
-        // Only apply height offset when there's actual progress to avoid starting displaced
-        if (progress > 0) {
-            // Ensure panel 1 is always above panel 2
-            // Use a very small initial offset and scale it with progress to prevent the 4% jump
-            const panel1YOffset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
-            panel1.pivot.position.y = panel1YOffset;
+        if (absProgress > 0) {
+            const panel1Offset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
+            if (isVertical) {
+                panel1.pivot.position.y = panel1Offset;
+                panel1.pivot.position.z = 0;
+            } else {
+                // Horizontal: use position.z for fold offset to avoid overwriting layout position.y
+                panel1.pivot.position.z = -panel1Offset;
+            }
         } else {
-            panel1.pivot.position.y = 0;
+            if (isVertical) {
+                panel1.pivot.position.y = 0;
+            }
+            panel1.pivot.position.z = 0;
         }
     }
 }
