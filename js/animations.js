@@ -329,13 +329,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel0.pivot.position.z = 0;
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
-            // For horizontal, "up" in world space is Y.
-            // But the pivot itself is rotated 90deg on X.
-            // In the pivot's local space, the world Y axis is its local Z axis.
-            // However, we want to ensure we are moving it UP.
-            // Let's use a larger curve and offset to ensure clearance.
-            const yCurve = Math.sin(progress * Math.PI) * 0.4; // Increased curve
-            panel0.pivot.position.z = (progress * PANEL_Z_OFFSET * 2) + yCurve;
+            // Flip the direction: use negative Z to move UP in world space
+            const yCurve = Math.sin(progress * Math.PI) * 0.4;
+            panel0.pivot.position.z = -((progress * PANEL_Z_OFFSET * 2) + yCurve);
         }
     }
     
@@ -348,9 +344,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel2.pivot.position.z = 0;
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
-            // Panel 2 needs to be even higher than panel 0
-            const yCurve = Math.sin(progress * Math.PI) * 0.6; // Even larger curve
-            panel2.pivot.position.z = (progress * PANEL_Z_OFFSET * 5.0) + yCurve;
+            // Flip the direction: use negative Z to move UP in world space
+            const yCurve = Math.sin(progress * Math.PI) * 0.6;
+            panel2.pivot.position.z = -((progress * PANEL_Z_OFFSET * 5.0) + yCurve);
         }
     }
 }
