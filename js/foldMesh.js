@@ -88,18 +88,18 @@ function createPanel(panel, panelConfig, textures) {
     // Apply custom UVs
     applyUVs(geometry, uvs, isHorizontalFold);
     
-    // Create materials for front and back
+    // Create materials for front and back (sides swapped: front upload shows on back mesh, back upload on front mesh)
     const frontMaterial = new THREE.MeshStandardMaterial({
-        map: textures.front || null,
-        color: textures.front ? 0xffffff : 0xf5f5f5,
+        map: textures.back || null,
+        color: textures.back ? 0xffffff : 0xf5f5f5,
         side: THREE.FrontSide,
         roughness: 0.8,
         metalness: 0.0
     });
     
     const backMaterial = new THREE.MeshStandardMaterial({
-        map: textures.back || null,
-        color: textures.back ? 0xffffff : 0xe8e8e8,
+        map: textures.front || null,
+        color: textures.front ? 0xffffff : 0xe8e8e8,
         side: THREE.FrontSide,
         roughness: 0.8,
         metalness: 0.0
@@ -468,12 +468,12 @@ export function updateTextures(textures) {
     if (!panelMeshes || panelMeshes.length === 0) return;
     
     panelMeshes.forEach(meshData => {
-        if (meshData.frontMesh && textures.front) {
-            meshData.frontMesh.material.map = textures.front;
+        if (meshData.frontMesh && textures.back) {
+            meshData.frontMesh.material.map = textures.back;
             meshData.frontMesh.material.needsUpdate = true;
         }
-        if (meshData.backMesh && textures.back) {
-            meshData.backMesh.material.map = textures.back;
+        if (meshData.backMesh && textures.front) {
+            meshData.backMesh.material.map = textures.front;
             meshData.backMesh.material.needsUpdate = true;
         }
     });
