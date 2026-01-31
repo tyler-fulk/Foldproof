@@ -116,22 +116,26 @@ function updateAnimation(deltaTime) {
     
     currentFoldProgress += progressChange;
     
-    // Clamp progress
-    if (currentFoldProgress >= 1) {
-        currentFoldProgress = 1;
-        if (isPlaying) {
-            // Reverse direction for continuous play
-            animationDirection = -1;
-        } else {
-            isAnimating = false;
+    // Clamp progress based on direction
+    if (animationDirection > 0) {
+        if (currentFoldProgress >= targetFoldProgress) {
+            currentFoldProgress = targetFoldProgress;
+            if (isPlaying) {
+                animationDirection = -1;
+                targetFoldProgress = -1;
+            } else {
+                isAnimating = false;
+            }
         }
-    } else if (currentFoldProgress <= 0) {
-        currentFoldProgress = 0;
-        if (isPlaying) {
-            // Reverse direction for continuous play
-            animationDirection = 1;
-        } else {
-            isAnimating = false;
+    } else {
+        if (currentFoldProgress <= targetFoldProgress) {
+            currentFoldProgress = targetFoldProgress;
+            if (isPlaying) {
+                animationDirection = 1;
+                targetFoldProgress = 1;
+            } else {
+                isAnimating = false;
+            }
         }
     }
     
@@ -144,7 +148,7 @@ function updateAnimation(deltaTime) {
 
 /**
  * Apply fold progress to the paper mesh
- * @param {number} progress - 0 to 1 (slider value)
+ * @param {number} progress - -1 to 1 (slider value)
  */
 function applyFoldProgress(progress) {
     const panelMeshes = getPanelMeshes();
@@ -154,9 +158,13 @@ function applyFoldProgress(progress) {
     const isVertical = isVerticalOrientation();
     
     // Cap the actual fold progress at MAX_FOLD_PROGRESS to prevent clipping
-    // Slider shows 0-100%, but actual fold is 0-80%
+    // Slider shows -100 to 100%, but actual fold is -80% to 80%
     const cappedProgress = progress * MAX_FOLD_PROGRESS;
-    const easedProgress = easeInOutCubic(cappedProgress);
+    
+    // Handle easing for negative values
+    const easedProgress = progress >= 0 
+        ? easeInOutCubic(cappedProgress) 
+        : -easeInOutCubic(Math.abs(cappedProgress));
     
     // Apply different folding logic based on fold type
     switch (foldType) {
@@ -393,11 +401,11 @@ export function animateTo(target) {
 
 /**
  * Set fold progress directly (no animation)
- * @param {number} progress - Progress 0 to 1
+ * @param {number} progress - Progress -1 to 1
  * @param {boolean} updateUI - Whether to update UI
  */
 export function setFoldProgress(progress, updateUI = true) {
-    currentFoldProgress = Math.max(0, Math.min(1, progress));
+    currentFoldProgress = Math.max(-1, Math.min(1, progress));
     applyFoldProgress(currentFoldProgress);
     
     if (updateUI) {
@@ -415,10 +423,15 @@ export function playToggle() {
     // Set direction based on current progress
     if (currentFoldProgress >= 1) {
         animationDirection = -1;
-    } else if (currentFoldProgress <= 0) {
+        targetFoldProgress = -1;
+    } else if (currentFoldProgress <= -1) {
         animationDirection = 1;
+        targetFoldProgress = 1;
+    } else {
+        // If in middle, decide direction based on where we were going or default to folding
+        if (animationDirection > 0) targetFoldProgress = 1;
+        else targetFoldProgress = -1;
     }
-    // Otherwise keep current direction
     
     updatePlayPauseUI();
 }
