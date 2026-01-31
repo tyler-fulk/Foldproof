@@ -329,9 +329,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel0.pivot.position.z = 0;
         } else {
             panel0.pivot.rotation.x = -foldAngle; // Fold down (inward)
-            // Flip the direction: use negative Z to move UP in world space
-            const yCurve = Math.sin(progress * Math.PI) * 0.4;
-            panel0.pivot.position.z = -((progress * PANEL_Z_OFFSET * 2) + yCurve);
+            // Use a much smaller curve and offset for horizontal
+            const yCurve = Math.sin(progress * Math.PI) * 0.05; // Reduced from 0.4
+            panel0.pivot.position.z = -((progress * PANEL_Z_OFFSET) + yCurve);
         }
     }
     
@@ -344,9 +344,9 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             panel2.pivot.position.z = 0;
         } else {
             panel2.pivot.rotation.x = foldAngle; // Fold up (inward)
-            // Flip the direction: use negative Z to move UP in world space
-            const yCurve = Math.sin(progress * Math.PI) * 0.6;
-            panel2.pivot.position.z = -((progress * PANEL_Z_OFFSET * 5.0) + yCurve);
+            // Use a much smaller curve and offset for horizontal
+            const yCurve = Math.sin(progress * Math.PI) * 0.08; // Reduced from 0.6
+            panel2.pivot.position.z = -((progress * PANEL_Z_OFFSET * 2.1) + yCurve);
         }
     }
 }
