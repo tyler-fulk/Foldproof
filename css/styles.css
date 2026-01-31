@@ -628,11 +628,28 @@ html[data-theme="dark"] .icon-moon {
     opacity: 0;
 }
 
-.viewport-overlay span {
+.viewport-overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     padding: 20px 30px;
     background-color: var(--bg-secondary);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
+}
+
+.viewport-overlay-content span:first-child {
+    font-size: 16px;
+}
+
+.viewport-overlay-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.viewport-overlay span {
+    text-align: center;
 }
 
 /* Export toolbar */
@@ -876,6 +893,54 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* Scrollbar styling */
+/* About panel */
+.about-panel {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.about-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    color: var(--text-primary);
+    text-align: left;
+}
+
+.about-toggle h2 {
+    margin: 0;
+}
+
+.about-chevron {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.about-content {
+    padding-top: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.about-intro {
+    margin: 0 0 10px 0;
+}
+
+.about-features {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.about-features li {
+    margin-bottom: 6px;
+}
+
 .donation-panel {
     margin-top: auto;
     border-top: 1px solid var(--border-color);

@@ -36,6 +36,7 @@ async function init() {
     initExport();
     setupReflectToggles();
     setupGridToggle();
+    setupAboutToggle();
     
     // Setup theme toggle
     setupThemeToggle();
@@ -184,6 +185,19 @@ function getReflectState() {
         reflectFront: document.getElementById('reflect-front')?.checked ?? false,
         reflectBack: document.getElementById('reflect-back')?.checked ?? false
     };
+}
+
+function setupAboutToggle() {
+    const toggle = document.getElementById('about-toggle');
+    const content = document.getElementById('about-content');
+    if (toggle && content) {
+        toggle.addEventListener('click', () => {
+            const isOpen = !content.hidden;
+            content.hidden = isOpen;
+            toggle.setAttribute('aria-expanded', !isOpen);
+            toggle.querySelector('.about-chevron').textContent = isOpen ? '▾' : '▴';
+        });
+    }
 }
 
 function setupGridToggle() {

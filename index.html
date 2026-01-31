@@ -3,8 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foldproof - 3D Fold Preview</title>
+    <title>Foldproof - 3D Print Fold Preview | Brochure & Flyer Layout Visualizer</title>
+    <meta name="description" content="Preview print layouts in 3D with Foldproof. Upload front and back designs, choose bi-fold, tri-fold, or gate fold styles, and see an interactive 3D preview before printing. Supports PDF, images, custom sizes, bleed guides, and export to JPG, PNG, or PDF.">
+    <meta name="keywords" content="print preview, brochure fold, tri-fold, bi-fold, gate fold, 3D print layout, flyer design, PDF preview, print design tool">
+    <meta name="author" content="Foldproof">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tyler-fulk.github.io/Foldproof/">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Foldproof - 3D Print Fold Preview">
+    <meta property="og:description" content="Preview brochure and flyer layouts in interactive 3D. Upload designs, choose fold types, and export before printing. Free web-based print preview tool.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tyler-fulk.github.io/Foldproof/">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Foldproof - 3D Print Fold Preview">
+    <meta name="twitter:description" content="Preview brochure and flyer layouts in interactive 3D. Upload designs, choose fold types, and export before printing.">
+    
     <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Foldproof",
+        "description": "Free web-based 3D print fold preview tool. Upload front and back designs, visualize bi-fold, tri-fold, and gate fold layouts in an interactive 3D viewport, then export to JPG, PNG, or PDF before printing.",
+        "url": "https://tyler-fulk.github.io/Foldproof/",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript. Supports Chrome, Firefox, Safari, Edge.",
+        "featureList": [
+            "Upload front and back images (PNG, JPG, WebP, PDF)",
+            "Preset and custom paper sizes with fractional inch support",
+            "Bi-fold, tri-fold Z-fold, tri-fold roll, and gate fold styles",
+            "Vertical and horizontal orientation for all fold types",
+            "Interactive 3D viewport with orbit controls",
+            "Animated fold/unfold preview with adjustable speed",
+            "Print guides: trim line, bleed area, safe zone, fold lines",
+            "Ruler with measurement labels",
+            "Export viewport to JPG, PNG (transparent), or PDF",
+            "Light and dark mode"
+        ]
+    }
+    </script>
+    
     <script>
         // Prevent flash of light mode on startup
         (function() {
@@ -19,6 +64,11 @@
     </script>
 </head>
 <body>
+    <noscript>
+        <div style="padding: 20px; text-align: center; background: #fef3c7; color: #92400e;">
+            Foldproof requires JavaScript to run. Please enable JavaScript in your browser to preview 3D print fold layouts.
+        </div>
+    </noscript>
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -223,6 +273,24 @@
                 </div>
             </section>
 
+            <section class="panel about-panel" id="about-panel">
+                <button type="button" class="about-toggle" id="about-toggle" aria-expanded="false">
+                    <h2>About</h2>
+                    <span class="about-chevron">▾</span>
+                </button>
+                <div class="about-content" id="about-content" hidden>
+                    <p class="about-intro">Foldproof lets you preview print layouts in 3D before sending to the printer.</p>
+                    <ul class="about-features">
+                        <li><strong>Upload designs</strong> — Front and back images or PDFs (PNG, JPG, WebP, SVG)</li>
+                        <li><strong>Paper sizes</strong> — Letter, Legal, Tabloid, A4, A3, or custom dimensions</li>
+                        <li><strong>Fold types</strong> — Bi-fold, tri-fold (Z-fold or roll), gate fold</li>
+                        <li><strong>3D preview</strong> — Rotate, zoom, and animate fold/unfold</li>
+                        <li><strong>Print guides</strong> — Trim, bleed, safe zone, fold lines, ruler</li>
+                        <li><strong>Export</strong> — Save viewport as JPG, PNG (transparent), or PDF</li>
+                    </ul>
+                </div>
+            </section>
+
             <section class="panel donation-panel">
                 <a href="https://ko-fi.com/tylerfulk" target="_blank" class="kofi-button">
                     <span class="kofi-icon">☕</span>
@@ -236,7 +304,10 @@
             <div class="viewport-container">
                 <canvas id="three-canvas"></canvas>
                 <div class="viewport-overlay" id="viewport-overlay">
-                    <span>Upload front and back images to preview</span>
+                    <div class="viewport-overlay-content">
+                        <span>Upload front and back images to preview</span>
+                        <span class="viewport-overlay-hint">3D print fold preview — brochures, flyers, business cards</span>
+                    </div>
                 </div>
                 
                 <div class="export-toolbar">
