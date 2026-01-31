@@ -52,9 +52,17 @@ function setupThemeToggle() {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
+    // Set initial theme if not already set by the blocking script in index.html
+    if (!document.documentElement.hasAttribute('data-theme')) {
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
     }
+    
+    // Update Three.js background to match initial theme
+    updateBackgroundColor();
     
     toggleBtn.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');

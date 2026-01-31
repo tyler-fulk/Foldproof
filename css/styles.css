@@ -368,6 +368,72 @@ select:focus, input[type="text"]:focus {
     );
 }
 
+.guide-color.ruler {
+    background-color: #8b5cf6;
+    height: 3px;
+    background: repeating-linear-gradient(
+        90deg,
+        #8b5cf6 0px,
+        #8b5cf6 2px,
+        transparent 2px,
+        transparent 4px
+    );
+}
+
+.guide-color.measurements {
+    background-color: transparent;
+    border: 1.5px solid #8b5cf6;
+    position: relative;
+}
+
+.guide-color.measurements::before {
+    content: '"';
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    color: #8b5cf6;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+/* Guide Submenu */
+.toggle-submenu {
+    margin-left: 24px;
+    padding-left: 12px;
+    border-left: 2px solid var(--border-color);
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.toggle-item.sub-item {
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+.toggle-item.sub-item .toggle-label {
+    color: var(--text-secondary);
+}
+
+.toggle-submenu .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+.toggle-submenu .slider-row label {
+    min-width: 32px;
+    color: var(--text-secondary);
+}
+
+.toggle-submenu .slider-row input[type="range"] {
+    flex: 1;
+    min-width: 0;
+}
+
 /* ========================================
    Buttons
    ======================================== */

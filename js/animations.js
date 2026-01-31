@@ -76,10 +76,22 @@ function setupControls() {
         progressLabel.textContent = `${e.target.value}%`;
     });
     
+    // Double-click to reset progress to 0%
+    progressSlider.addEventListener('dblclick', () => {
+        setFoldProgress(0, true);
+    });
+    
     // Speed slider
     speedSlider.addEventListener('input', (e) => {
         animationSpeed = parseFloat(e.target.value);
         speedLabel.textContent = `${animationSpeed.toFixed(1)}x`;
+    });
+    
+    // Double-click to reset speed to 1x
+    speedSlider.addEventListener('dblclick', () => {
+        animationSpeed = 1;
+        speedSlider.value = 1;
+        speedLabel.textContent = '1x';
     });
 }
 

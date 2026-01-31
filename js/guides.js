@@ -10,12 +10,17 @@ const GUIDE_COLORS = {
     trim: 0xef4444,      // Red
     bleed: 0xf97316,     // Orange
     safe: 0x22c55e,      // Green
-    folds: 0x3b82f6      // Blue
+    folds: 0x3b82f6,     // Blue
+    ruler: 0x8b5cf6      // Purple
 };
 
-// Standard print margins (in inches)
-const BLEED_MARGIN = 0.125;  // 1/8 inch
-const SAFE_MARGIN = 0.25;    // 1/4 inch
+// Default print margins (in inches)
+const DEFAULT_BLEED_MARGIN = 0.125;  // 1/8 inch
+const DEFAULT_SAFE_MARGIN = 0.25;    // 1/4 inch
+
+// Editable margin values
+let bleedMargin = DEFAULT_BLEED_MARGIN;
+let safeMargin = DEFAULT_SAFE_MARGIN;
 
 // Scale factor (must match foldMesh.js)
 const SCALE_FACTOR = 0.5;
@@ -25,7 +30,9 @@ let guideState = {
     trim: true,
     bleed: false,
     safe: false,
-    folds: true
+    folds: true,
+    ruler: false,
+    rulerLabels: true
 };
 
 // Guide objects
@@ -34,6 +41,8 @@ let trimLines = null;
 let bleedLines = null;
 let safeLines = null;
 let foldLines = null;
+let rulerGroup = null;
+let rulerLabelsGroup = null;
 
 // Current configuration
 let currentSize = null;
@@ -48,6 +57,9 @@ export function initGuides() {
     const bleedToggle = document.getElementById('guide-bleed');
     const safeToggle = document.getElementById('guide-safe');
     const foldsToggle = document.getElementById('guide-folds');
+    const rulerToggle = document.getElementById('guide-ruler');
+    const rulerLabelsToggle = document.getElementById('guide-ruler-labels');
+    const rulerSubmenu = document.getElementById('ruler-submenu');
     
     if (trimToggle) {
         trimToggle.addEventListener('change', (e) => {
@@ -56,10 +68,32 @@ export function initGuides() {
         });
     }
     
+    const bleedSubmenu = document.getElementById('bleed-submenu');
+    const safeSubmenu = document.getElementById('safe-submenu');
+    const bleedSlider = document.getElementById('bleed-margin');
+    const safeSlider = document.getElementById('safe-margin');
+    const bleedValueSpan = document.getElementById('bleed-value');
+    const safeValueSpan = document.getElementById('safe-value');
+    
     if (bleedToggle) {
         bleedToggle.addEventListener('change', (e) => {
             guideState.bleed = e.target.checked;
             updateGuideVisibility();
+            if (bleedSubmenu) bleedSubmenu.hidden = !e.target.checked;
+        });
+    }
+    
+    if (bleedSlider) {
+        bleedSlider.addEventListener('input', (e) => {
+            bleedMargin = parseFloat(e.target.value);
+            if (bleedValueSpan) bleedValueSpan.textContent = bleedMargin.toFixed(3);
+            updateBleedSafeGuides();
+        });
+        bleedSlider.addEventListener('dblclick', () => {
+            bleedMargin = DEFAULT_BLEED_MARGIN;
+            bleedSlider.value = bleedMargin;
+            if (bleedValueSpan) bleedValueSpan.textContent = bleedMargin.toFixed(3);
+            updateBleedSafeGuides();
         });
     }
     
@@ -67,12 +101,45 @@ export function initGuides() {
         safeToggle.addEventListener('change', (e) => {
             guideState.safe = e.target.checked;
             updateGuideVisibility();
+            if (safeSubmenu) safeSubmenu.hidden = !e.target.checked;
+        });
+    }
+    
+    if (safeSlider) {
+        safeSlider.addEventListener('input', (e) => {
+            safeMargin = parseFloat(e.target.value);
+            if (safeValueSpan) safeValueSpan.textContent = safeMargin.toFixed(3);
+            updateBleedSafeGuides();
+        });
+        safeSlider.addEventListener('dblclick', () => {
+            safeMargin = DEFAULT_SAFE_MARGIN;
+            safeSlider.value = safeMargin;
+            if (safeValueSpan) safeValueSpan.textContent = safeMargin.toFixed(3);
+            updateBleedSafeGuides();
         });
     }
     
     if (foldsToggle) {
         foldsToggle.addEventListener('change', (e) => {
             guideState.folds = e.target.checked;
+            updateGuideVisibility();
+        });
+    }
+    
+    if (rulerToggle) {
+        rulerToggle.addEventListener('change', (e) => {
+            guideState.ruler = e.target.checked;
+            updateGuideVisibility();
+            // Show/hide submenu
+            if (rulerSubmenu) {
+                rulerSubmenu.hidden = !e.target.checked;
+            }
+        });
+    }
+    
+    if (rulerLabelsToggle) {
+        rulerLabelsToggle.addEventListener('change', (e) => {
+            guideState.rulerLabels = e.target.checked;
             updateGuideVisibility();
         });
     }
@@ -99,24 +166,31 @@ export function createGuides(size, panelConfig) {
     // Create each guide type
     trimLines = createRectangleGuide(scaledWidth, scaledHeight, GUIDE_COLORS.trim, 0);
     bleedLines = createRectangleGuide(
-        scaledWidth + (BLEED_MARGIN * 2 * SCALE_FACTOR),
-        scaledHeight + (BLEED_MARGIN * 2 * SCALE_FACTOR),
+        scaledWidth + (bleedMargin * 2 * SCALE_FACTOR),
+        scaledHeight + (bleedMargin * 2 * SCALE_FACTOR),
         GUIDE_COLORS.bleed,
         0
     );
     safeLines = createRectangleGuide(
-        scaledWidth - (SAFE_MARGIN * 2 * SCALE_FACTOR),
-        scaledHeight - (SAFE_MARGIN * 2 * SCALE_FACTOR),
+        scaledWidth - (safeMargin * 2 * SCALE_FACTOR),
+        scaledHeight - (safeMargin * 2 * SCALE_FACTOR),
         GUIDE_COLORS.safe,
         0
     );
     foldLines = createFoldGuides(panelConfig);
+    
+    // Create ruler guides
+    const rulerResult = createRulerGuides(size);
+    rulerGroup = rulerResult.ruler;
+    rulerLabelsGroup = rulerResult.labels;
     
     // Add to group
     guideGroup.add(trimLines);
     guideGroup.add(bleedLines);
     guideGroup.add(safeLines);
     guideGroup.add(foldLines);
+    guideGroup.add(rulerGroup);
+    guideGroup.add(rulerLabelsGroup);
     
     // Position guides slightly above paper to prevent z-fighting
     guideGroup.position.y = 0.02;
@@ -235,6 +309,143 @@ function createFoldLine(offset, totalWidth, totalHeight, isVertical) {
 }
 
 /**
+ * Create ruler guides with tick marks and labels
+ * @param {Object} size - Paper size { width, height }
+ * @returns {Object} { ruler: THREE.Group, labels: THREE.Group }
+ */
+function createRulerGuides(size) {
+    const rulerGroup = new THREE.Group();
+    rulerGroup.name = 'ruler';
+    
+    const labelsGroup = new THREE.Group();
+    labelsGroup.name = 'ruler-labels';
+    
+    const scaledWidth = size.width * SCALE_FACTOR;
+    const scaledHeight = size.height * SCALE_FACTOR;
+    const halfWidth = scaledWidth / 2;
+    const halfHeight = scaledHeight / 2;
+    
+    // Ruler settings
+    const majorTickInterval = 1; // Every 1 inch
+    const minorTickInterval = 0.5; // Every 0.5 inch
+    const majorTickSize = 0.15;
+    const minorTickSize = 0.08;
+    const rulerOffset = 0.05; // Offset from paper edge
+    
+    // Create horizontal ruler (top edge)
+    const hRulerPoints = [
+        new THREE.Vector3(-halfWidth, 0, -halfHeight - rulerOffset),
+        new THREE.Vector3(halfWidth, 0, -halfHeight - rulerOffset)
+    ];
+    const hRulerGeom = new THREE.BufferGeometry().setFromPoints(hRulerPoints);
+    const hRulerMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+    rulerGroup.add(new THREE.Line(hRulerGeom, hRulerMat));
+    
+    // Create vertical ruler (left edge)
+    const vRulerPoints = [
+        new THREE.Vector3(-halfWidth - rulerOffset, 0, -halfHeight),
+        new THREE.Vector3(-halfWidth - rulerOffset, 0, halfHeight)
+    ];
+    const vRulerGeom = new THREE.BufferGeometry().setFromPoints(vRulerPoints);
+    const vRulerMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+    rulerGroup.add(new THREE.Line(vRulerGeom, vRulerMat));
+    
+    // Create tick marks and labels for horizontal ruler (width)
+    for (let i = 0; i <= size.width; i += minorTickInterval) {
+        const x = -halfWidth + (i * SCALE_FACTOR);
+        const isMajor = i % majorTickInterval === 0;
+        const tickSize = isMajor ? majorTickSize : minorTickSize;
+        
+        // Create tick mark
+        const tickPoints = [
+            new THREE.Vector3(x, 0, -halfHeight - rulerOffset),
+            new THREE.Vector3(x, 0, -halfHeight - rulerOffset - tickSize)
+        ];
+        const tickGeom = new THREE.BufferGeometry().setFromPoints(tickPoints);
+        const tickMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+        rulerGroup.add(new THREE.Line(tickGeom, tickMat));
+        
+        // Add label for major ticks
+        if (isMajor && i > 0) {
+            const label = createTextSprite(i.toString() + '"', GUIDE_COLORS.ruler);
+            label.position.set(x, 0.01, -halfHeight - rulerOffset - tickSize - 0.15);
+            label.scale.set(0.3, 0.15, 1);
+            labelsGroup.add(label);
+        }
+    }
+    
+    // Create tick marks and labels for vertical ruler (height)
+    for (let i = 0; i <= size.height; i += minorTickInterval) {
+        const z = -halfHeight + (i * SCALE_FACTOR);
+        const isMajor = i % majorTickInterval === 0;
+        const tickSize = isMajor ? majorTickSize : minorTickSize;
+        
+        // Create tick mark
+        const tickPoints = [
+            new THREE.Vector3(-halfWidth - rulerOffset, 0, z),
+            new THREE.Vector3(-halfWidth - rulerOffset - tickSize, 0, z)
+        ];
+        const tickGeom = new THREE.BufferGeometry().setFromPoints(tickPoints);
+        const tickMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+        rulerGroup.add(new THREE.Line(tickGeom, tickMat));
+        
+        // Add label for major ticks
+        if (isMajor && i > 0) {
+            const label = createTextSprite(i.toString() + '"', GUIDE_COLORS.ruler);
+            label.position.set(-halfWidth - rulerOffset - tickSize - 0.2, 0.01, z);
+            label.scale.set(0.3, 0.15, 1);
+            labelsGroup.add(label);
+        }
+    }
+    
+    // Add dimension labels at the ends
+    const widthLabel = createTextSprite(size.width.toFixed(2) + '"', GUIDE_COLORS.ruler);
+    widthLabel.position.set(0, 0.01, -halfHeight - rulerOffset - majorTickSize - 0.35);
+    widthLabel.scale.set(0.5, 0.25, 1);
+    labelsGroup.add(widthLabel);
+    
+    const heightLabel = createTextSprite(size.height.toFixed(2) + '"', GUIDE_COLORS.ruler);
+    heightLabel.position.set(-halfWidth - rulerOffset - majorTickSize - 0.4, 0.01, 0);
+    heightLabel.scale.set(0.5, 0.25, 1);
+    labelsGroup.add(heightLabel);
+    
+    return { ruler: rulerGroup, labels: labelsGroup };
+}
+
+/**
+ * Create a text sprite for labels
+ * @param {string} text - Text to display
+ * @param {number} color - Color of text
+ * @returns {THREE.Sprite}
+ */
+function createTextSprite(text, color) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 128;
+    canvas.height = 64;
+    
+    // Convert hex color to CSS color
+    const cssColor = '#' + color.toString(16).padStart(6, '0');
+    
+    context.fillStyle = cssColor;
+    context.font = 'bold 32px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false
+    });
+    
+    return new THREE.Sprite(material);
+}
+
+/**
  * Update visibility of all guides based on state
  */
 function updateGuideVisibility() {
@@ -242,6 +453,46 @@ function updateGuideVisibility() {
     if (bleedLines) bleedLines.visible = guideState.bleed;
     if (safeLines) safeLines.visible = guideState.safe;
     if (foldLines) foldLines.visible = guideState.folds;
+    if (rulerGroup) rulerGroup.visible = guideState.ruler;
+    if (rulerLabelsGroup) rulerLabelsGroup.visible = guideState.ruler && guideState.rulerLabels;
+}
+
+/**
+ * Rebuild bleed and safe guides with current margin values
+ */
+function updateBleedSafeGuides() {
+    if (!currentSize || !guideGroup) return;
+    
+    const scaledWidth = currentSize.width * SCALE_FACTOR;
+    const scaledHeight = currentSize.height * SCALE_FACTOR;
+    
+    if (bleedLines) {
+        guideGroup.remove(bleedLines);
+        if (bleedLines.geometry) bleedLines.geometry.dispose();
+        if (bleedLines.material) bleedLines.material.dispose();
+    }
+    bleedLines = createRectangleGuide(
+        scaledWidth + (bleedMargin * 2 * SCALE_FACTOR),
+        scaledHeight + (bleedMargin * 2 * SCALE_FACTOR),
+        GUIDE_COLORS.bleed,
+        0
+    );
+    bleedLines.visible = guideState.bleed;
+    guideGroup.add(bleedLines);
+    
+    if (safeLines) {
+        guideGroup.remove(safeLines);
+        if (safeLines.geometry) safeLines.geometry.dispose();
+        if (safeLines.material) safeLines.material.dispose();
+    }
+    safeLines = createRectangleGuide(
+        scaledWidth - (safeMargin * 2 * SCALE_FACTOR),
+        scaledHeight - (safeMargin * 2 * SCALE_FACTOR),
+        GUIDE_COLORS.safe,
+        0
+    );
+    safeLines.visible = guideState.safe;
+    guideGroup.add(safeLines);
 }
 
 /**
@@ -259,7 +510,10 @@ export function clearGuides() {
     if (guideGroup) {
         guideGroup.traverse((child) => {
             if (child.geometry) child.geometry.dispose();
-            if (child.material) child.material.dispose();
+            if (child.material) {
+                if (child.material.map) child.material.map.dispose();
+                child.material.dispose();
+            }
         });
         guideGroup = null;
     }
@@ -267,6 +521,8 @@ export function clearGuides() {
     bleedLines = null;
     safeLines = null;
     foldLines = null;
+    rulerGroup = null;
+    rulerLabelsGroup = null;
 }
 
 /**

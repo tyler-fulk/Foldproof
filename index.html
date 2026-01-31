@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Foldproof - 3D Fold Preview</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Prevent flash of light mode on startup
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -130,17 +142,31 @@
                         <input type="checkbox" id="guide-bleed">
                         <span class="toggle-label">
                             <span class="guide-color bleed"></span>
-                            Bleed Area (0.125")
+                            Bleed Area
                         </span>
                     </label>
+                    
+                    <div class="toggle-submenu" id="bleed-submenu" hidden>
+                        <div class="sub-item slider-row">
+                            <label for="bleed-margin"><span id="bleed-value">0.125</span>"</label>
+                            <input type="range" id="bleed-margin" min="0" max="0.5" step="0.01" value="0.125">
+                        </div>
+                    </div>
                     
                     <label class="toggle-item">
                         <input type="checkbox" id="guide-safe">
                         <span class="toggle-label">
                             <span class="guide-color safe"></span>
-                            Safe Zone (0.25")
+                            Safe Zone
                         </span>
                     </label>
+                    
+                    <div class="toggle-submenu" id="safe-submenu" hidden>
+                        <div class="sub-item slider-row">
+                            <label for="safe-margin"><span id="safe-value">0.25</span>"</label>
+                            <input type="range" id="safe-margin" min="0" max="1" step="0.01" value="0.25">
+                        </div>
+                    </div>
                     
                     <label class="toggle-item">
                         <input type="checkbox" id="guide-folds" checked>
@@ -149,6 +175,23 @@
                             Fold Lines
                         </span>
                     </label>
+                    
+                    <label class="toggle-item">
+                        <input type="checkbox" id="guide-ruler">
+                        <span class="toggle-label">
+                            <span class="guide-color ruler"></span>
+                            Ruler
+                        </span>
+                    </label>
+                    
+                    <div class="toggle-submenu" id="ruler-submenu" hidden>
+                        <label class="toggle-item sub-item">
+                            <input type="checkbox" id="guide-ruler-labels" checked>
+                            <span class="toggle-label">
+                                Show Measurements
+                            </span>
+                        </label>
+                    </div>
                 </div>
             </section>
 
