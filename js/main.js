@@ -10,7 +10,7 @@ import { initFoldCalculator, getCurrentFoldType, setFoldType, setOrientation, ge
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor, getGridHelper } from './scene.js';
 import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures, recalculatePaperCenter } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
-import { initGuides, createGuides, clearGuides } from './guides.js';
+import { initGuides, createGuides, clearGuides, updateRulerColors } from './guides.js';
 import { initExport } from './exportViewport.js';
 
 // Application state
@@ -81,6 +81,8 @@ function setupThemeToggle() {
         
         // Update Three.js background
         updateBackgroundColor();
+        // Update ruler colors (dark purple in light mode, lighter purple in dark)
+        updateRulerColors();
     });
 }
 

@@ -11,8 +11,14 @@ const GUIDE_COLORS = {
     bleed: 0xf97316,     // Orange
     safe: 0x22c55e,      // Green
     folds: 0x3b82f6,     // Blue
-    ruler: 0x8b5cf6      // Purple
+    ruler: 0x8b5cf6,     // Purple (dark mode)
+    rulerLight: 0x4c1d95 // Dark purple (light mode only)
 };
+
+function getRulerColor() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return isDark ? GUIDE_COLORS.ruler : GUIDE_COLORS.rulerLight;
+}
 
 // Default print margins (in inches)
 const DEFAULT_BLEED_MARGIN = 0.125;  // 1/8 inch
@@ -314,6 +320,7 @@ function createFoldLine(offset, totalWidth, totalHeight, isVertical) {
  * @returns {Object} { ruler: THREE.Group, labels: THREE.Group }
  */
 function createRulerGuides(size) {
+    const rulerColor = getRulerColor();
     const rulerGroup = new THREE.Group();
     rulerGroup.name = 'ruler';
     
@@ -338,7 +345,7 @@ function createRulerGuides(size) {
         new THREE.Vector3(halfWidth, 0, -halfHeight - rulerOffset)
     ];
     const hRulerGeom = new THREE.BufferGeometry().setFromPoints(hRulerPoints);
-    const hRulerMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+    const hRulerMat = new THREE.LineBasicMaterial({ color: rulerColor, transparent: true, opacity: 0.8 });
     rulerGroup.add(new THREE.Line(hRulerGeom, hRulerMat));
     
     // Create vertical ruler (left edge)
@@ -347,7 +354,7 @@ function createRulerGuides(size) {
         new THREE.Vector3(-halfWidth - rulerOffset, 0, halfHeight)
     ];
     const vRulerGeom = new THREE.BufferGeometry().setFromPoints(vRulerPoints);
-    const vRulerMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+    const vRulerMat = new THREE.LineBasicMaterial({ color: rulerColor, transparent: true, opacity: 0.8 });
     rulerGroup.add(new THREE.Line(vRulerGeom, vRulerMat));
     
     // Create tick marks and labels for horizontal ruler (width)
@@ -362,12 +369,12 @@ function createRulerGuides(size) {
             new THREE.Vector3(x, 0, -halfHeight - rulerOffset - tickSize)
         ];
         const tickGeom = new THREE.BufferGeometry().setFromPoints(tickPoints);
-        const tickMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+        const tickMat = new THREE.LineBasicMaterial({ color: rulerColor, transparent: true, opacity: 0.8 });
         rulerGroup.add(new THREE.Line(tickGeom, tickMat));
         
         // Add label for major ticks
         if (isMajor && i > 0) {
-            const label = createTextSprite(i.toString() + '"', GUIDE_COLORS.ruler);
+            const label = createTextSprite(i.toString() + '"', rulerColor);
             label.position.set(x, 0.01, -halfHeight - rulerOffset - tickSize - 0.15);
             label.scale.set(0.3, 0.15, 1);
             labelsGroup.add(label);
@@ -386,12 +393,12 @@ function createRulerGuides(size) {
             new THREE.Vector3(-halfWidth - rulerOffset - tickSize, 0, z)
         ];
         const tickGeom = new THREE.BufferGeometry().setFromPoints(tickPoints);
-        const tickMat = new THREE.LineBasicMaterial({ color: GUIDE_COLORS.ruler, transparent: true, opacity: 0.8 });
+        const tickMat = new THREE.LineBasicMaterial({ color: rulerColor, transparent: true, opacity: 0.8 });
         rulerGroup.add(new THREE.Line(tickGeom, tickMat));
         
         // Add label for major ticks
         if (isMajor && i > 0) {
-            const label = createTextSprite(i.toString() + '"', GUIDE_COLORS.ruler);
+            const label = createTextSprite(i.toString() + '"', rulerColor);
             label.position.set(-halfWidth - rulerOffset - tickSize - 0.2, 0.01, z);
             label.scale.set(0.3, 0.15, 1);
             labelsGroup.add(label);
@@ -399,12 +406,12 @@ function createRulerGuides(size) {
     }
     
     // Add dimension labels at the ends
-    const widthLabel = createTextSprite(size.width.toFixed(2) + '"', GUIDE_COLORS.ruler);
+    const widthLabel = createTextSprite(size.width.toFixed(2) + '"', rulerColor);
     widthLabel.position.set(0, 0.01, -halfHeight - rulerOffset - majorTickSize - 0.35);
     widthLabel.scale.set(0.5, 0.25, 1);
     labelsGroup.add(widthLabel);
     
-    const heightLabel = createTextSprite(size.height.toFixed(2) + '"', GUIDE_COLORS.ruler);
+    const heightLabel = createTextSprite(size.height.toFixed(2) + '"', rulerColor);
     heightLabel.position.set(-halfWidth - rulerOffset - majorTickSize - 0.4, 0.01, 0);
     heightLabel.scale.set(0.5, 0.25, 1);
     labelsGroup.add(heightLabel);
@@ -452,6 +459,36 @@ function createTextSprite(text, color) {
     });
     
     return new THREE.Sprite(material);
+}
+
+/**
+ * Update ruler colors when theme changes (dark purple in light mode, lighter purple in dark)
+ */
+export function updateRulerColors() {
+    if (!guideGroup || !currentSize) return;
+    if (!rulerGroup || !rulerLabelsGroup) return;
+
+    const disposeGroup = (group) => {
+        group.traverse((child) => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (child.material.map) child.material.map.dispose();
+                child.material.dispose();
+            }
+        });
+    };
+
+    guideGroup.remove(rulerGroup);
+    guideGroup.remove(rulerLabelsGroup);
+    disposeGroup(rulerGroup);
+    disposeGroup(rulerLabelsGroup);
+
+    const rulerResult = createRulerGuides(currentSize);
+    rulerGroup = rulerResult.ruler;
+    rulerLabelsGroup = rulerResult.labels;
+    guideGroup.add(rulerGroup);
+    guideGroup.add(rulerLabelsGroup);
+    updateGuideVisibility();
 }
 
 /**
