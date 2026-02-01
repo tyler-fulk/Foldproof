@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { initImageHandler, getImages, hasAllImages, createTexture, getAutofitEnabled, getImageDimensionsInInches } from './imageHandler.js';
 import { initSizeParser, getCurrentSize, setSizeFromDimensions } from './sizeParser.js';
-import { initFoldCalculator, getCurrentFoldType, setFoldType } from './foldCalculator.js';
+import { initFoldCalculator, getCurrentFoldType, setFoldType, setOrientation, getCurrentOrientation } from './foldCalculator.js';
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor, getGridHelper } from './scene.js';
 import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures, recalculatePaperCenter } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
@@ -186,7 +186,8 @@ function onSizeChanged(size) {
 function onFoldTypeChanged(foldType) {
     console.log('Fold type changed:', foldType);
     updateFoldTypeToolbarActive(foldType);
-    
+    updateOrientationToolbarActive(getCurrentOrientation());
+
     // Rebuild mesh with new fold configuration
     if (hasAnyImages()) {
         rebuildMesh();
@@ -246,7 +247,24 @@ function setupFoldTypeToolbar() {
         }
     });
 
+    const orientationToolbar = document.querySelector('.fold-orientation-toolbar');
+    if (orientationToolbar) {
+        orientationToolbar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.orientation-btn');
+            if (btn && btn.dataset.orientation) {
+                setOrientation(btn.dataset.orientation);
+            }
+        });
+    }
+
     updateFoldTypeToolbarActive(getCurrentFoldType());
+    updateOrientationToolbarActive(getCurrentOrientation());
+}
+
+function updateOrientationToolbarActive(activeOrientation) {
+    document.querySelectorAll('.orientation-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.orientation === activeOrientation);
+    });
 }
 
 function updateFoldTypeToolbarActive(activeFold) {

@@ -511,6 +511,21 @@ export function setFoldType(type) {
 }
 
 /**
+ * Set the current orientation (e.g. from viewport toolbar)
+ * @param {string} orientation - 'vertical' or 'horizontal'
+ */
+export function setOrientation(orientation) {
+    if (orientation !== 'vertical' && orientation !== 'horizontal') return;
+    currentOrientation = orientation;
+    const orientationSelect = document.getElementById('fold-orientation');
+    if (orientationSelect) {
+        orientationSelect.value = orientation;
+    }
+    updateFoldDiagram();
+    notifyFoldChange();
+}
+
+/**
  * Get the current fold type
  * @returns {string}
  */

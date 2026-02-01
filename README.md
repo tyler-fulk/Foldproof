@@ -9,9 +9,13 @@ A web application for visualizing folded print layouts in 3D. Upload front and b
 ### Image Upload
 - Drag-and-drop or click to upload front and back print images
 - **Supported formats:** PNG, JPG, JPEG, WebP, BMP, TIFF, SVG, and PDF
-- PDF support: renders the first page as a high-quality image
+- **PDF support:**
+  - 2-page PDFs automatically fill both slots (page 1 → front, page 2 → back)
+  - PDFs with 3+ pages show a page selector on each slot to choose which page to display
+- **Swap front/back** — One-click button to swap the front and back images
 - **Autofit image:** When disabled, paper size is taken from the uploaded file (e.g., a 1″×1″ PDF displays at 1″×1″)
-- **Reflect front/back:** Mirror individual images
+- **Reflect front/back** — Mirror individual images
+- **Inactivity pulse** — Upload zones pulse after 10 seconds of inactivity (without an image) to draw attention; stops when you interact with the upload areas
 
 ### Paper Sizes
 - Common presets: Letter, Legal, Tabloid, A4, A3
@@ -24,26 +28,36 @@ A web application for visualizing folded print layouts in 3D. Upload front and b
 - Gate Fold
 - **Orientation:** Vertical (left-right) or horizontal (top-bottom) for all fold types
 
+### Viewport Toolbar (Top-Left)
+- **Fold style buttons** — Switch between fold types with icon buttons
+- **Orientation buttons** — Toggle Vertical or Horizontal fold direction
+- Both toolbars stay in sync with the sidebar controls
+
 ### 3D Preview
 - Rotatable 3D model with orbit controls
 - Infinite grid background (toggleable)
 - Smooth fold/unfold animations with adjustable speed
+- **Play/Pause** — Animate fold progress
+- **Fold/Unfold** — Quick buttons to set fold state
 - Double-click progress or speed sliders to reset
+- **Controls disabled until upload** — Fold controls are greyed out until at least one image is uploaded; clicking them pulses the "Upload front and back images to preview" tip
 
 ### Print Guides
 - **Trim line** — Cut boundary
 - **Bleed area** — Adjustable slider (default 0.125″)
 - **Safe zone** — Adjustable slider (default 0.25″)
 - **Fold lines** — Panel fold boundaries
-- **Ruler** — Distance measurements (optional labels)
+- **Ruler** — Distance measurements with optional labels
 - **Grid** — Infinite ground grid
 
 ### Export
 - Export viewport as **JPG**, **PNG** (transparent), or **PDF**
 - Toggle background, grid, and guides in export
+- Export button in top-right of viewport
 
 ### Themes
 - Light and dark mode (follows system preference, saves preference)
+- No white flash on page reload
 
 ## Deployment
 
@@ -107,7 +121,7 @@ Push to a GitHub repository and enable Pages in Settings → Pages. The app will
 │   └── styles.css          # Application styles
 ├── js/
 │   ├── main.js             # Application entry point
-│   ├── imageHandler.js     # Image upload, PDF, SVG handling
+│   ├── imageHandler.js     # Image upload, PDF, SVG, swap handling
 │   ├── sizeParser.js       # Paper size parsing
 │   ├── foldCalculator.js   # Fold configuration
 │   ├── foldMesh.js         # 3D paper geometry
@@ -115,23 +129,22 @@ Push to a GitHub repository and enable Pages in Settings → Pages. The app will
 │   ├── scene.js            # Three.js scene setup
 │   ├── guides.js           # Trim, bleed, safe zone, ruler guides
 │   ├── exportViewport.js   # JPG/PNG/PDF export
-│   ├── infiniteGrid.js     # Shader-based infinite grid
-│   └── ...
+│   └── infiniteGrid.js     # Shader-based infinite grid
 └── README.md
 ```
 
 ## Usage
 
-1. **Upload images** — Drop or click to add front and back designs (images or PDF)
-2. **Paper size** — Choose a preset or enter a custom size
-3. **Fold type** — Select fold style and orientation
-4. **Preview** — The 3D model updates automatically
+1. **Upload images** — Drop or click to add front and back designs (images or PDF). Use the swap button between upload zones to swap front and back.
+2. **Paper size** — Choose a preset or enter a custom size.
+3. **Fold type** — Select fold style and orientation from the sidebar, or use the viewport toolbar (top-left).
+4. **Preview** — The 3D model updates automatically.
 5. **Interact**
    - Drag to rotate, scroll to zoom
-   - Use Fold/Unfold buttons or the progress slider
+   - Use Fold/Unfold buttons, Play/Pause, or the progress slider
    - Double-click sliders to reset
-6. **Guides** — Toggle trim, bleed, safe zone, fold lines, ruler, grid
-7. **Export** — Use the Export button (top right) to save the viewport
+6. **Guides** — Toggle trim, bleed, safe zone, fold lines, ruler, grid.
+7. **Export** — Use the Export button (top right) to save the viewport as JPG, PNG, or PDF.
 
 ## Technologies Used
 
@@ -141,3 +154,7 @@ Push to a GitHub repository and enable Pages in Settings → Pages. The app will
 - PDF.js for PDF rendering
 - jsPDF for PDF export
 - No build step required
+
+---
+
+**Made by [Tyler Fulk](https://tylerfulk.com)**

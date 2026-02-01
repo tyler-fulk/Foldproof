@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', (t === 'dark' || (!t && d)) ? 'dark' : 'light');
+        })();
+    </script>
     <title>Foldproof - 3D Print Fold Preview | Brochure & Flyer Layout Visualizer</title>
     <meta name="description" content="Preview print layouts in 3D with Foldproof. Upload front and back designs, choose bi-fold, tri-fold, or gate fold styles, and see an interactive 3D preview before printing. Supports PDF, images, custom sizes, bleed guides, and export to JPG, PNG, or PDF.">
     <meta name="keywords" content="print preview, brochure fold, tri-fold, bi-fold, gate fold, 3D print layout, flyer design, PDF preview, print design tool">
@@ -48,19 +55,6 @@
             "Light and dark mode"
         ]
     }
-    </script>
-    
-    <script>
-        // Prevent flash of light mode on startup
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-            }
-        })();
     </script>
 </head>
 <body>
@@ -312,19 +306,31 @@
         <main class="viewport">
             <div class="viewport-container">
                 <canvas id="three-canvas"></canvas>
-                <div class="fold-type-toolbar" id="fold-type-toolbar">
-                    <button type="button" class="fold-type-btn" data-fold="bi-fold" title="Bi-Fold">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="16" rx="1"/><rect x="12" y="4" width="10" height="16" rx="1"/></svg>
-                    </button>
-                    <button type="button" class="fold-type-btn" data-fold="tri-fold-z" title="Tri-Fold Z-Fold (Accordion)">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
-                    </button>
-                    <button type="button" class="fold-type-btn" data-fold="tri-fold-roll" title="Tri-Fold Roll (Letter)">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="7" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="15" y="4" width="7" height="16" rx="1"/></svg>
-                    </button>
-                    <button type="button" class="fold-type-btn" data-fold="gate-fold" title="Gate Fold">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="8" y="4" width="8" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
-                    </button>
+                <div class="fold-viewport-toolbar">
+                    <div class="fold-type-toolbar" id="fold-type-toolbar">
+                        <button type="button" class="fold-type-btn" data-fold="bi-fold" title="Bi-Fold">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="16" rx="1"/><rect x="12" y="4" width="10" height="16" rx="1"/></svg>
+                        </button>
+                        <button type="button" class="fold-type-btn" data-fold="tri-fold-z" title="Tri-Fold Z-Fold (Accordion)">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
+                        </button>
+                        <button type="button" class="fold-type-btn" data-fold="tri-fold-roll" title="Tri-Fold Roll (Letter)">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="7" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="15" y="4" width="7" height="16" rx="1"/></svg>
+                        </button>
+                        <button type="button" class="fold-type-btn" data-fold="gate-fold" title="Gate Fold">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="8" y="4" width="8" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
+                        </button>
+                    </div>
+                    <div class="fold-orientation-toolbar">
+                        <button type="button" class="orientation-btn" data-orientation="vertical" title="Vertical (Left-Right fold)">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="8" height="20" rx="1"/><rect x="12" y="2" width="8" height="20" rx="1"/></svg>
+                            <span>Vertical</span>
+                        </button>
+                        <button type="button" class="orientation-btn" data-orientation="horizontal" title="Horizontal (Top-Bottom fold)">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="8" rx="1"/><rect x="2" y="12" width="20" height="8" rx="1"/></svg>
+                            <span>Horizontal</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="viewport-overlay" id="viewport-overlay">
                     <div class="viewport-overlay-content">
