@@ -329,79 +329,196 @@ async function handleSvgFile(file, side) {
 }
 
 /**
- * Handle PDF file upload
+ * Render a single PDF page to image data
+ * @param {Object} pdf - PDF.js document
+ * @param {number} pageNum - 1-based page number
+ * @param {File} file - Original PDF file
+ * @returns {Object} Image data object for uploadedImages
+ */
+async function renderPdfPageToImageData(pdf, pageNum, file, options = {}) {
+    const page = await pdf.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(2048 / viewport.width, 2048 / viewport.height, 3);
+    const scaledViewport = page.getViewport({ scale });
+
+    const widthInches = viewport.width / 72;
+    const heightInches = viewport.height / 72;
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+
+    await page.render({
+        canvasContext: context,
+        viewport: scaledViewport
+    }).promise;
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const result = {
+        dataUrl,
+        width: canvas.width,
+        height: canvas.height,
+        widthInches,
+        heightInches,
+        file,
+        isPdf: true,
+        pageCount: pdf.numPages,
+        currentPage: pageNum
+    };
+    if (options.storePdfDoc && pdf.numPages > 2) {
+        result.pdfDoc = pdf;
+    }
+    return result;
+}
+
+/**
+ * Handle PDF file upload.
+ * If the PDF has 2 pages, automatically inserts page 1 into front and page 2 into back.
+ * Otherwise, inserts the first page into the dropped zone.
  * @param {File} file - The PDF file
- * @param {string} side - 'front' or 'back'
+ * @param {string} side - 'front' or 'back' (zone where file was dropped)
  */
 async function handlePdfFile(file, side) {
     try {
-        // Show loading state
-        showLoadingState(side, 'Loading PDF...');
-        
-        // Initialize PDF.js
+        const loadingMsg = 'Loading PDF...';
+        showLoadingState(side, loadingMsg);
+
         const pdfjs = await initPdfJs();
         if (!pdfjs) {
             throw new Error('PDF.js library not available');
         }
-        
-        // Read file as ArrayBuffer
+
         const arrayBuffer = await file.arrayBuffer();
-        
-        // Load the PDF document
         const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
-        
-        // Get the first page
-        const page = await pdf.getPage(1);
-        
-        // Calculate scale for high-quality rendering
-        const viewport = page.getViewport({ scale: 1 });
-        const scale = Math.min(2048 / viewport.width, 2048 / viewport.height, 3);
-        const scaledViewport = page.getViewport({ scale });
-        
-        // PDF dimensions: viewport at scale 1 is in points (72 points = 1 inch)
-        const widthInches = viewport.width / 72;
-        const heightInches = viewport.height / 72;
-        
-        // Create canvas to render PDF
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
-        
-        // Render PDF page to canvas
-        await page.render({
-            canvasContext: context,
-            viewport: scaledViewport
-        }).promise;
-        
-        // Convert canvas to data URL
-        const dataUrl = canvas.toDataURL('image/png');
-        
-        // Store the image data
-        uploadedImages[side] = {
-            dataUrl: dataUrl,
-            width: canvas.width,
-            height: canvas.height,
-            widthInches,
-            heightInches,
-            file: file,
-            isPdf: true,
-            pageCount: pdf.numPages
-        };
-        
-        updatePreview(side, dataUrl);
-        notifyImageChange();
-        
-        // Show page count info if multi-page PDF
-        if (pdf.numPages > 1) {
-            console.log(`PDF has ${pdf.numPages} pages. Using page 1 for ${side} side.`);
+
+        const pageCount = Number(pdf.numPages) || 0;
+        if (pageCount === 2) {
+            showLoadingState('front', 'Loading PDF (2 pages)...');
+            showLoadingState('back', 'Loading PDF (2 pages)...');
+            const frontData = await renderPdfPageToImageData(pdf, 1, file);
+            const backData = await renderPdfPageToImageData(pdf, 2, file);
+            uploadedImages.front = frontData;
+            uploadedImages.back = backData;
+            updatePreview('front', frontData.dataUrl);
+            updatePreview('back', backData.dataUrl);
+            document.getElementById('front-image').value = '';
+            document.getElementById('back-image').value = '';
+            hidePageSelector('front');
+            hidePageSelector('back');
+            hideLoadingState('front');
+            hideLoadingState('back');
+        } else if (pageCount > 2) {
+            showLoadingState('front', 'Loading PDF...');
+            showLoadingState('back', 'Loading PDF...');
+            const frontData = await renderPdfPageToImageData(pdf, 1, file, { storePdfDoc: true });
+            const backData = await renderPdfPageToImageData(pdf, 2, file, { storePdfDoc: true });
+            uploadedImages.front = frontData;
+            uploadedImages.back = backData;
+            updatePreview('front', frontData.dataUrl);
+            updatePreview('back', backData.dataUrl);
+            showPageSelector('front', pageCount, 1);
+            showPageSelector('back', pageCount, 2);
+            document.getElementById('front-image').value = '';
+            document.getElementById('back-image').value = '';
+            hideLoadingState('front');
+            hideLoadingState('back');
+        } else {
+            const imageData = await renderPdfPageToImageData(pdf, 1, file);
+            uploadedImages[side] = imageData;
+            updatePreview(side, imageData.dataUrl);
+            hidePageSelector(side);
+            hideLoadingState(side);
         }
-        
+
+        notifyImageChange();
     } catch (error) {
         console.error('Error processing PDF:', error);
-        hideLoadingState(side);
+        hideLoadingState('front');
+        hideLoadingState('back');
         alert(`Error loading PDF: ${error.message}. Please try a different file.`);
+    }
+}
+
+/**
+ * Show page selector for multi-page PDF
+ * @param {string} side - 'front' or 'back'
+ * @param {number} pageCount - Total pages
+ * @param {number} currentPage - Currently displayed page (1-based)
+ */
+function showPageSelector(side, pageCount, currentPage) {
+    const wrap = document.getElementById(`${side}-page-selector`);
+    if (!wrap) return;
+    wrap.hidden = false;
+    wrap.innerHTML = '';
+    const select = document.createElement('select');
+    select.className = 'page-select';
+    select.title = 'Select page';
+    for (let i = 1; i <= pageCount; i++) {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = `Page ${i}`;
+        if (i === currentPage) opt.selected = true;
+        select.appendChild(opt);
+    }
+    select.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const pageNum = parseInt(e.target.value, 10);
+        handlePageChange(side, pageNum);
+    });
+    wrap.addEventListener('click', (e) => e.stopPropagation());
+    wrap.appendChild(select);
+}
+
+/**
+ * Hide page selector
+ * @param {string} side - 'front' or 'back'
+ */
+function hidePageSelector(side) {
+    const wrap = document.getElementById(`${side}-page-selector`);
+    if (wrap) {
+        wrap.hidden = true;
+        wrap.innerHTML = '';
+    }
+}
+
+/**
+ * Handle page selection change - re-render and update
+ * @param {string} side - 'front' or 'back'
+ * @param {number} pageNum - 1-based page number
+ */
+async function handlePageChange(side, pageNum) {
+    const img = uploadedImages[side];
+    if (!img || !img.pdfDoc || !img.file) return;
+    const wrap = document.getElementById(`${side}-page-selector`);
+    if (wrap) wrap.style.opacity = '0.6';
+    try {
+        const newData = await renderPdfPageToImageData(img.pdfDoc, pageNum, img.file, { storePdfDoc: true });
+        newData.pdfDoc = img.pdfDoc;
+        uploadedImages[side] = newData;
+        updatePreview(side, newData.dataUrl);
+        const select = wrap?.querySelector('select');
+        if (select) select.value = String(pageNum);
+        notifyImageChange();
+    } catch (err) {
+        console.error('Error rendering PDF page:', err);
+    } finally {
+        if (wrap) wrap.style.opacity = '';
+    }
+}
+
+/**
+ * Refresh page selectors after swap - update visibility and options based on current image data
+ */
+function refreshPageSelectors() {
+    for (const side of ['front', 'back']) {
+        const img = uploadedImages[side];
+        if (img && img.pageCount > 2 && img.pdfDoc) {
+            showPageSelector(side, img.pageCount, img.currentPage || 1);
+        } else {
+            hidePageSelector(side);
+        }
     }
 }
 
@@ -487,6 +604,7 @@ function swapImages() {
         frontZone.querySelector('.upload-preview').hidden = false;
     }
 
+    refreshPageSelectors();
     notifyImageChange();
 }
 
@@ -515,6 +633,7 @@ function removeImage(side) {
     placeholder.hidden = false;
     preview.hidden = true;
     input.value = '';
+    hidePageSelector(side);
     
     // Reset loading state (text, pointer events, opacity)
     hideLoadingState(side);

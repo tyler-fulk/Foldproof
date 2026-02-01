@@ -261,6 +261,28 @@ html, body {
     transform: scale(1.1);
 }
 
+.page-selector-wrap {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    z-index: 5;
+    pointer-events: auto;
+}
+
+.page-selector-wrap select {
+    padding: 4px 8px;
+    font-size: 11px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.page-selector-wrap select:hover {
+    border-color: var(--accent-primary);
+}
+
 /* ========================================
    Form Elements
    ======================================== */
