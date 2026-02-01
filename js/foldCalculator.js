@@ -298,6 +298,8 @@ function calculateGateFold(totalLength, panelHeight) {
  */
 function updateFoldDiagram() {
     const container = document.getElementById('fold-diagram');
+    if (!container) return;
+
     const isVertical = currentOrientation === 'vertical';
     
     // Create SVG diagram
@@ -491,6 +493,21 @@ function createGateFoldDiagram(width, height, isVertical) {
             </svg>
         `;
     }
+}
+
+/**
+ * Set the current fold type (e.g. from viewport toolbar)
+ * @param {string} type - Fold type key
+ */
+export function setFoldType(type) {
+    if (!FOLD_TYPES[type]) return;
+    currentFoldType = type;
+    const foldSelect = document.getElementById('fold-type');
+    if (foldSelect) {
+        foldSelect.value = type;
+    }
+    updateFoldDiagram();
+    notifyFoldChange();
 }
 
 /**

@@ -201,10 +201,6 @@
                         <option value="horizontal">Horizontal (Top-Bottom fold)</option>
                     </select>
                 </div>
-
-                <div class="fold-diagram" id="fold-diagram">
-                    <!-- SVG diagram will be rendered here -->
-                </div>
             </section>
 
             <!-- Guides Section -->
@@ -316,6 +312,20 @@
         <main class="viewport">
             <div class="viewport-container">
                 <canvas id="three-canvas"></canvas>
+                <div class="fold-type-toolbar" id="fold-type-toolbar">
+                    <button type="button" class="fold-type-btn" data-fold="bi-fold" title="Bi-Fold">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="10" height="16" rx="1"/><rect x="12" y="4" width="10" height="16" rx="1"/></svg>
+                    </button>
+                    <button type="button" class="fold-type-btn" data-fold="tri-fold-z" title="Tri-Fold Z-Fold (Accordion)">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
+                    </button>
+                    <button type="button" class="fold-type-btn" data-fold="tri-fold-roll" title="Tri-Fold Roll (Letter)">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="7" height="16" rx="1"/><rect x="9" y="4" width="6" height="16" rx="1"/><rect x="15" y="4" width="7" height="16" rx="1"/></svg>
+                    </button>
+                    <button type="button" class="fold-type-btn" data-fold="gate-fold" title="Gate Fold">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="8" y="4" width="8" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
+                    </button>
+                </div>
                 <div class="viewport-overlay" id="viewport-overlay">
                     <div class="viewport-overlay-content">
                         <span>Upload front and back images to preview</span>
@@ -335,21 +345,21 @@
                             </select>
                         </div>
                         <div class="export-option">
-                            <label>
+                            <label class="toggle-item">
                                 <input type="checkbox" id="export-background" checked>
-                                Show background
+                                <span class="toggle-label">Show background</span>
                             </label>
                         </div>
                         <div class="export-option">
-                            <label>
+                            <label class="toggle-item">
                                 <input type="checkbox" id="export-grid" checked>
-                                Show grid
+                                <span class="toggle-label">Show grid</span>
                             </label>
                         </div>
                         <div class="export-option">
-                            <label>
+                            <label class="toggle-item">
                                 <input type="checkbox" id="export-guides" checked>
-                                Show guides & rulers
+                                <span class="toggle-label">Show guides & rulers</span>
                             </label>
                         </div>
                         <button type="button" id="export-apply" class="btn btn-primary">Export</button>
@@ -358,17 +368,24 @@
             </div>
 
             <!-- Animation Controls -->
-            <div class="controls-bar">
-                <div class="controls-left">
+            <div class="controls-bar-wrapper">
+                <div class="controls-bar controls-disabled" id="controls-bar">
+                    <div class="controls-left">
                     <button id="btn-unfold" class="btn btn-primary" title="Unfold">
-                        <span>📖 Unfold</span>
+                        <svg class="control-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        <span>Unfold</span>
                     </button>
                     <button id="btn-fold" class="btn btn-primary" title="Fold">
-                        <span>📕 Fold</span>
+                        <svg class="control-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        <span>Fold</span>
                     </button>
-                    <button id="btn-play-pause" class="btn btn-secondary" title="Play/Pause Animation">
-                        <span id="play-icon">▶️</span>
-                        <span id="pause-icon" hidden>⏸️</span>
+                    <button id="btn-play-pause" class="btn btn-secondary btn-play-pause" title="Play/Pause Animation">
+                        <span id="play-icon">
+                            <svg class="control-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6v12l9-6z" transform="translate(-1, 0)"/></svg>
+                        </span>
+                        <span id="pause-icon" hidden>
+                            <svg class="control-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                        </span>
                     </button>
                 </div>
 
@@ -383,6 +400,8 @@
                     <input type="range" id="animation-speed" min="0.1" max="3" step="0.1" value="1">
                     <span id="speed-label">1x</span>
                 </div>
+                </div>
+                <div class="controls-bar-overlay" id="controls-bar-overlay" aria-hidden="true"></div>
             </div>
         </main>
     </div>

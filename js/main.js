@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { initImageHandler, getImages, hasAllImages, createTexture, getAutofitEnabled, getImageDimensionsInInches } from './imageHandler.js';
 import { initSizeParser, getCurrentSize, setSizeFromDimensions } from './sizeParser.js';
-import { initFoldCalculator, getCurrentFoldType } from './foldCalculator.js';
+import { initFoldCalculator, getCurrentFoldType, setFoldType } from './foldCalculator.js';
 import { initScene, getScene, addToScene, removeFromScene, clearMeshes, updateBackgroundColor, getGridHelper } from './scene.js';
 import { createFoldMesh, getPaperGroup, disposeMesh, updateTextures, recalculatePaperCenter } from './foldMesh.js';
 import { initAnimations, resetAnimation, setFoldProgress } from './animations.js';
@@ -37,6 +37,9 @@ async function init() {
     setupReflectToggles();
     setupGridToggle();
     setupAboutToggle();
+    setupInactivityPulse();
+    setupFoldTypeToolbar();
+    setupControlsOverlayClick();
     
     // Setup theme toggle
     setupThemeToggle();
@@ -88,6 +91,12 @@ function setupThemeToggle() {
 function onImagesChanged(images) {
     console.log('Images changed:', images);
     
+    // Stop upload zone pulse when images are added
+    if (images.front || images.back) {
+        document.getElementById('front-upload-zone')?.classList.remove('pulse');
+        document.getElementById('back-upload-zone')?.classList.remove('pulse');
+    }
+
     // Update viewport overlay visibility
     const overlay = document.getElementById('viewport-overlay');
     
@@ -107,6 +116,7 @@ function onImagesChanged(images) {
         }
 
         if (!didSetSizeFromImage) rebuildMesh();
+        document.getElementById('controls-bar')?.classList.remove('controls-disabled');
     } else if (images.front || images.back) {
         overlay.hidden = true;
 
@@ -123,11 +133,13 @@ function onImagesChanged(images) {
         }
 
         if (!didSetSizeFromImage) rebuildMesh();
+        document.getElementById('controls-bar')?.classList.remove('controls-disabled');
     } else {
         // No images
         overlay.hidden = false;
         currentTextures = { front: null, back: null };
         clearMeshes();
+        document.getElementById('controls-bar')?.classList.add('controls-disabled');
         
         // Clear guides
         if (currentGuideGroup) {
@@ -173,6 +185,7 @@ function onSizeChanged(size) {
  */
 function onFoldTypeChanged(foldType) {
     console.log('Fold type changed:', foldType);
+    updateFoldTypeToolbarActive(foldType);
     
     // Rebuild mesh with new fold configuration
     if (hasAnyImages()) {
@@ -198,6 +211,90 @@ function setupAboutToggle() {
             toggle.querySelector('.about-chevron').textContent = isOpen ? '▾' : '▴';
         });
     }
+}
+
+function setupControlsOverlayClick() {
+    const overlay = document.getElementById('controls-bar-overlay');
+    const viewportOverlay = document.querySelector('.viewport-overlay-content');
+    const PULSE_DURATION_MS = 3000;
+    let pulseTimeout = null;
+
+    overlay?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const images = getImages();
+        if (images.front || images.back) return;
+        if (viewportOverlay) {
+            viewportOverlay.classList.add('pulse');
+            if (pulseTimeout) clearTimeout(pulseTimeout);
+            pulseTimeout = setTimeout(() => {
+                viewportOverlay.classList.remove('pulse');
+                pulseTimeout = null;
+            }, PULSE_DURATION_MS);
+        }
+    });
+}
+
+function setupFoldTypeToolbar() {
+    const toolbar = document.getElementById('fold-type-toolbar');
+    if (!toolbar) return;
+
+    toolbar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.fold-type-btn');
+        if (btn && btn.dataset.fold) {
+            setFoldType(btn.dataset.fold);
+        }
+    });
+
+    updateFoldTypeToolbarActive(getCurrentFoldType());
+}
+
+function updateFoldTypeToolbarActive(activeFold) {
+    document.querySelectorAll('.fold-type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.fold === activeFold);
+    });
+}
+
+function setupInactivityPulse() {
+    const INACTIVITY_MS = 10000;
+    let inactivityTimer = null;
+
+    const frontZone = document.getElementById('front-upload-zone');
+    const backZone = document.getElementById('back-upload-zone');
+
+    function stopPulse() {
+        frontZone?.classList.remove('pulse');
+        backZone?.classList.remove('pulse');
+    }
+
+    function startPulse() {
+        const images = getImages();
+        const hasImages = images.front !== null || images.back !== null;
+        if (!hasImages) {
+            frontZone?.classList.add('pulse');
+            backZone?.classList.add('pulse');
+        }
+    }
+
+    function resetInactivityTimer() {
+        if (inactivityTimer) clearTimeout(inactivityTimer);
+        stopPulse();
+        inactivityTimer = setTimeout(() => startPulse(), INACTIVITY_MS);
+    }
+
+    function onUploadZoneInteraction() {
+        resetInactivityTimer();
+    }
+
+    [frontZone, backZone].forEach(zone => {
+        if (zone) {
+            zone.addEventListener('click', onUploadZoneInteraction);
+            zone.addEventListener('touchstart', onUploadZoneInteraction, { passive: true });
+        }
+    });
+
+    // Start initial 10s countdown from load
+    resetInactivityTimer();
 }
 
 function setupGridToggle() {
