@@ -44,6 +44,9 @@ async function init() {
     // Setup theme toggle
     setupThemeToggle();
     
+    // Setup help modal
+    setupHelpModal();
+    
     // Mark as initialized
     isInitialized = true;
     
@@ -83,6 +86,44 @@ function setupThemeToggle() {
         updateBackgroundColor();
         // Update ruler colors (dark purple in light mode, lighter purple in dark)
         updateRulerColors();
+    });
+}
+
+/**
+ * Setup help modal
+ */
+function setupHelpModal() {
+    const helpToggle = document.getElementById('help-toggle');
+    const helpModal = document.getElementById('help-modal');
+    const helpModalClose = document.getElementById('help-modal-close');
+    const helpModalOverlay = document.getElementById('help-modal-overlay');
+    
+    if (!helpToggle || !helpModal) return;
+    
+    // Open modal
+    helpToggle.addEventListener('click', () => {
+        helpModal.hidden = false;
+    });
+    
+    // Close modal via close button
+    if (helpModalClose) {
+        helpModalClose.addEventListener('click', () => {
+            helpModal.hidden = true;
+        });
+    }
+    
+    // Close modal via overlay click
+    if (helpModalOverlay) {
+        helpModalOverlay.addEventListener('click', () => {
+            helpModal.hidden = true;
+        });
+    }
+    
+    // Close modal via Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !helpModal.hidden) {
+            helpModal.hidden = true;
+        }
     });
 }
 

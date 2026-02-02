@@ -24,6 +24,11 @@ const FOLD_TYPES = {
         name: 'Gate Fold',
         panelCount: 3,
         description: '2 outer panels fold to center'
+    },
+    'double-gate-fold': {
+        name: 'Double Gate Fold',
+        panelCount: 4,
+        description: '4 panels, outer panels fold inward then sandwiched in half'
     }
 };
 
@@ -101,6 +106,10 @@ export function calculatePanels(size) {
             
         case 'gate-fold':
             panels = calculateGateFold(totalLength, panelHeight);
+            break;
+            
+        case 'double-gate-fold':
+            panels = calculateDoubleGateFold(totalLength, panelHeight);
             break;
             
         default:
@@ -247,6 +256,74 @@ function calculateTriFoldRoll(totalLength, panelHeight) {
 }
 
 /**
+ * Calculate double gate fold panels
+ * 4 panels: outer panels fold inward first, then the whole piece folds in half
+ * Hierarchy: LeftOuter -> LeftCenter (base), RightOuter -> RightCenter -> LeftCenter
+ * @param {number} totalLength - Total length to divide
+ * @param {number} panelHeight - Height of each panel
+ * @returns {Array} Panel configurations
+ */
+function calculateDoubleGateFold(totalLength, panelHeight) {
+    // 4 equal panels
+    const panelWidth = totalLength / 4;
+    
+    // Outer panels slightly narrower to prevent binding when sandwiched
+    const outerReduction = panelWidth * 0.005;
+    const outerPanelWidth = panelWidth - outerReduction;
+    const centerPanelWidth = panelWidth + (outerReduction / 2);
+    
+    return [
+        {
+            index: 0, // LeftOuter - folds inward onto LeftCenter
+            width: outerPanelWidth,
+            height: panelHeight,
+            offsetX: 0,
+            pivotEdge: 'right',
+            foldDirection: -1,
+            foldAngle: Math.PI,
+            isBase: false,
+            parentIndex: 1,
+            nestOffset: 0.02,
+            isOuter: true
+        },
+        {
+            index: 1, // LeftCenter - base panel
+            width: centerPanelWidth,
+            height: panelHeight,
+            offsetX: outerPanelWidth,
+            pivotEdge: 'right',
+            foldDirection: 0,
+            foldAngle: 0,
+            isBase: true
+        },
+        {
+            index: 2, // RightCenter - folds toward LeftCenter at spine
+            width: centerPanelWidth,
+            height: panelHeight,
+            offsetX: outerPanelWidth + centerPanelWidth,
+            pivotEdge: 'left',
+            foldDirection: -1,
+            foldAngle: Math.PI,
+            isBase: false,
+            parentIndex: 1
+        },
+        {
+            index: 3, // RightOuter - folds inward onto RightCenter
+            width: outerPanelWidth,
+            height: panelHeight,
+            offsetX: outerPanelWidth + (centerPanelWidth * 2),
+            pivotEdge: 'left',
+            foldDirection: 1,
+            foldAngle: Math.PI,
+            isBase: false,
+            parentIndex: 2,
+            nestOffset: 0.02,
+            isOuter: true
+        }
+    ];
+}
+
+/**
  * Calculate gate fold panels
  * Two outer panels fold toward center
  * @param {number} totalLength - Total length to divide
@@ -319,6 +396,9 @@ function updateFoldDiagram() {
             break;
         case 'gate-fold':
             svg = createGateFoldDiagram(svgWidth, svgHeight, isVertical);
+            break;
+        case 'double-gate-fold':
+            svg = createDoubleGateFoldDiagram(svgWidth, svgHeight, isVertical);
             break;
     }
     
@@ -490,6 +570,65 @@ function createGateFoldDiagram(width, height, isVertical) {
                     stroke="${lineColor}" stroke-width="1" stroke-dasharray="4"/>
                 <text x="${width/2}" y="${10 + outerHeight + centerHeight/2}" text-anchor="middle" 
                     fill="${lineColor}" font-size="8">center</text>
+            </svg>
+        `;
+    }
+}
+
+/**
+ * Create double gate fold diagram SVG
+ */
+function createDoubleGateFoldDiagram(width, height, isVertical) {
+    const color = 'var(--accent-primary)';
+    const lineColor = 'var(--text-muted)';
+    const outerColor = 'var(--accent-secondary)';
+    
+    if (isVertical) {
+        const panelWidth = (width - 25) / 4;
+        return `
+            <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                <!-- Outer panels (dashed to show they fold first) -->
+                <rect x="5" y="10" width="${panelWidth - 2}" height="${height - 20}" 
+                    fill="none" stroke="${outerColor}" stroke-width="2" rx="2" stroke-dasharray="3"/>
+                <rect x="${width - panelWidth - 3}" y="10" width="${panelWidth - 2}" height="${height - 20}" 
+                    fill="none" stroke="${outerColor}" stroke-width="2" rx="2" stroke-dasharray="3"/>
+                <!-- Center panels -->
+                <rect x="${8 + panelWidth}" y="10" width="${panelWidth}" height="${height - 20}" 
+                    fill="none" stroke="${color}" stroke-width="2" rx="2"/>
+                <rect x="${width - (panelWidth * 2) - 8}" y="10" width="${panelWidth}" height="${height - 20}" 
+                    fill="none" stroke="${color}" stroke-width="2" rx="2"/>
+                <!-- Fold lines -->
+                <line x1="${6 + panelWidth}" y1="5" x2="${6 + panelWidth}" y2="${height - 5}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="${width/2}" y1="5" x2="${width/2}" y2="${height - 5}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="2"/>
+                <line x1="${width - panelWidth - 6}" y1="5" x2="${width - panelWidth - 6}" y2="${height - 5}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="4"/>
+                <text x="${width/2}" y="${height - 2}" text-anchor="middle" 
+                    fill="${lineColor}" font-size="7">spine</text>
+            </svg>
+        `;
+    } else {
+        const panelHeight = (height - 16) / 4;
+        return `
+            <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+                <!-- Outer panels (dashed) -->
+                <rect x="30" y="3" width="${width - 60}" height="${panelHeight - 2}" 
+                    fill="none" stroke="${outerColor}" stroke-width="2" rx="2" stroke-dasharray="3"/>
+                <rect x="30" y="${height - panelHeight - 1}" width="${width - 60}" height="${panelHeight - 2}" 
+                    fill="none" stroke="${outerColor}" stroke-width="2" rx="2" stroke-dasharray="3"/>
+                <!-- Center panels -->
+                <rect x="30" y="${5 + panelHeight}" width="${width - 60}" height="${panelHeight}" 
+                    fill="none" stroke="${color}" stroke-width="2" rx="2"/>
+                <rect x="30" y="${height - (panelHeight * 2) - 4}" width="${width - 60}" height="${panelHeight}" 
+                    fill="none" stroke="${color}" stroke-width="2" rx="2"/>
+                <!-- Fold lines -->
+                <line x1="25" y1="${4 + panelHeight}" x2="${width - 25}" y2="${4 + panelHeight}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="4"/>
+                <line x1="25" y1="${height/2}" x2="${width - 25}" y2="${height/2}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="2"/>
+                <line x1="25" y1="${height - panelHeight - 3}" x2="${width - 25}" y2="${height - panelHeight - 3}" 
+                    stroke="${lineColor}" stroke-width="1" stroke-dasharray="4"/>
             </svg>
         `;
     }

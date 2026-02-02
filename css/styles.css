@@ -1055,6 +1055,151 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ========================================
+   Header Buttons
+   ======================================== */
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Help button icon color */
+#help-toggle svg {
+    color: var(--text-secondary);
+    transition: color var(--transition-fast);
+}
+
+#help-toggle:hover svg {
+    color: var(--text-primary);
+}
+
+/* ========================================
+   Help Modal
+   ======================================== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1001;
+}
+
+.modal-content {
+    position: relative;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 700px;
+    max-height: 85vh;
+    width: 100%;
+    z-index: 1002;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin: 0;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 24px;
+    line-height: 1;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    z-index: 1;
+}
+
+.modal-close:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.help-content {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.help-section {
+    margin-bottom: 24px;
+}
+
+.help-section:last-child {
+    margin-bottom: 0;
+}
+
+.help-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.help-section p {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.help-section ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 8px;
+}
+
+.help-section li {
+    color: var(--text-secondary);
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+.help-section li::before {
+    content: "•";
+    position: absolute;
+    left: 8px;
+    color: var(--accent-primary);
+    font-weight: bold;
+}
+
+.help-section strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ========================================
    Responsive Design
    ======================================== */
 

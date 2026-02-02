@@ -339,13 +339,24 @@ function positionPivot(pivot, panel, panelConfig, scaledPanelWidth, scaledPanelH
                 break;
         }
         
-        // Center the paper when root is at edge (tri-folds). Bi-fold root is already at center.
-        // Tri-fold Z needs slightly more offset (~20/120) than tri-fold roll (19.5/120)
+        // Center the paper when root is at edge. Bi-fold root is already at center.
+        // Each fold type needs its own offset due to different panel counts/widths
         let centerOffset = 0;
         if (panel.pivotEdge !== 'center' && panelConfig.foldType !== 'bi-fold') {
-            centerOffset = panelConfig.foldType === 'tri-fold-z'
-                ? (totalDividedDimension * 20 / 120)
-                : (totalDividedDimension * 19.5 / 120);
+            switch (panelConfig.foldType) {
+                case 'tri-fold-z':
+                    centerOffset = totalDividedDimension * 20 / 120;
+                    break;
+                case 'tri-fold-roll':
+                    centerOffset = totalDividedDimension * 19.5 / 120;
+                    break;
+                case 'double-gate-fold':
+                    // 4-panel fold: base pivot is near center, minimal offset needed
+                    centerOffset = 0;
+                    break;
+                default:
+                    centerOffset = totalDividedDimension * 19.5 / 120;
+            }
         }
         pivot.position.x = 0;
         pivot.position.y = 0;

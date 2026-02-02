@@ -68,10 +68,15 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h1>Foldproof</h1>
-                <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">
-                    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></svg>
-                    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="icon-btn" title="Help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                    <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">
+                        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></svg>
+                        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Image Upload Section -->
@@ -185,6 +190,7 @@
                         <option value="tri-fold-z">Tri-Fold Z-Fold (Accordion)</option>
                         <option value="tri-fold-roll">Tri-Fold Roll (Letter)</option>
                         <option value="gate-fold">Gate Fold</option>
+                        <option value="double-gate-fold">Double Gate Fold</option>
                     </select>
                 </div>
 
@@ -320,6 +326,9 @@
                         <button type="button" class="fold-type-btn" data-fold="gate-fold" title="Gate Fold">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="6" height="16" rx="1"/><rect x="8" y="4" width="8" height="16" rx="1"/><rect x="16" y="4" width="6" height="16" rx="1"/></svg>
                         </button>
+                        <button type="button" class="fold-type-btn" data-fold="double-gate-fold" title="Double Gate Fold">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="5" height="16" rx="0.5" stroke-dasharray="2"/><rect x="6.5" y="4" width="5" height="16" rx="0.5"/><rect x="12" y="4" width="5" height="16" rx="0.5"/><rect x="17.5" y="4" width="5" height="16" rx="0.5" stroke-dasharray="2"/></svg>
+                        </button>
                     </div>
                     <div class="fold-orientation-toolbar">
                         <button type="button" class="orientation-btn" data-orientation="vertical" title="Vertical (Left-Right fold)">
@@ -410,6 +419,97 @@
                 <div class="controls-bar-overlay" id="controls-bar-overlay" aria-hidden="true"></div>
             </div>
         </main>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal" hidden>
+        <div class="modal-overlay" id="help-modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="help-modal-close" title="Close">&times;</button>
+            <h2>How to Use Foldproof</h2>
+            <div class="help-content">
+                <section class="help-section">
+                    <h3>Getting Started</h3>
+                    <p><strong>Upload Images:</strong> Drag and drop or click to upload your front and back design images. Supports PNG, JPG, WebP, and PDF files.</p>
+                    <ul>
+                        <li><strong>Multi-page PDFs:</strong> If your PDF has 2 pages, they'll automatically fill front and back slots. For PDFs with more pages, use the page selector to choose which page to display.</li>
+                        <li><strong>Swap Images:</strong> Click the arrow button between upload zones to swap front and back images.</li>
+                        <li><strong>Remove Images:</strong> Click the × button to remove an uploaded image.</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <h3>Paper Size</h3>
+                    <p>Choose from preset sizes or enter custom dimensions. Supports fractional inches (e.g., 8 1/2 × 11).</p>
+                    <p><strong>Autofit Image:</strong> When disabled, paper size automatically adjusts to match your uploaded image's dimensions (useful for SVGs with embedded size data).</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Fold Types</h3>
+                    <p>Select from the sidebar dropdown or use the icon buttons in the viewport:</p>
+                    <ul>
+                        <li><strong>Bi-Fold:</strong> Standard half-fold (2 panels)</li>
+                        <li><strong>Tri-Fold Z-Fold:</strong> Accordion-style fold (3 panels)</li>
+                        <li><strong>Tri-Fold Roll:</strong> Letter-style fold (3 panels)</li>
+                        <li><strong>Gate Fold:</strong> Two panels fold inward to meet in the center</li>
+                        <li><strong>Double Gate Fold:</strong> Four panels — outer panels fold inward, then the whole piece folds in half at the spine</li>
+                    </ul>
+                    <p><strong>Orientation:</strong> Switch between vertical and horizontal using the buttons below the fold type icons or the dropdown in the sidebar.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>3D Viewport Controls</h3>
+                    <ul>
+                        <li><strong>Rotate:</strong> Click and drag to orbit around the model</li>
+                        <li><strong>Zoom:</strong> Scroll or pinch to zoom in/out</li>
+                        <li><strong>Pan:</strong> Right-click and drag (or two-finger drag on trackpad)</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <h3>Animation Controls</h3>
+                    <p><strong>Fold Progress:</strong> Drag the slider to manually fold/unfold (-100% to 100%). Double-click to reset to 0%.</p>
+                    <p><strong>Play/Pause:</strong> Automatically animate the folding sequence.</p>
+                    <p><strong>Speed:</strong> Adjust animation speed (0.1x to 3x). Double-click to reset to 1x.</p>
+                    <p><strong>Fold/Unfold Buttons:</strong> Quickly animate to fully folded or unfolded state.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Guides & Rulers</h3>
+                    <p>Toggle visual guides to help with print layout:</p>
+                    <ul>
+                        <li><strong>Trim Line:</strong> Final cut edge (red)</li>
+                        <li><strong>Bleed Area:</strong> Extra space for printing (orange, adjustable margin)</li>
+                        <li><strong>Safe Zone:</strong> Keep important content inside (green, adjustable margin)</li>
+                        <li><strong>Fold Lines:</strong> Where the paper folds (blue)</li>
+                        <li><strong>Ruler:</strong> Measurement marks with optional labels (purple in light mode, lighter purple in dark mode)</li>
+                        <li><strong>Grid:</strong> Background reference grid (can be toggled on/off)</li>
+                    </ul>
+                    <p><strong>Tip:</strong> Double-click bleed or safe zone sliders to reset to default values.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Image Adjustments</h3>
+                    <ul>
+                        <li><strong>Reflect Front/Back:</strong> Mirror the front or back image horizontally.</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <h3>Export</h3>
+                    <p>Click the Export button in the viewport to save your preview:</p>
+                    <ul>
+                        <li><strong>Format:</strong> Choose JPG, PNG (with transparency), or PDF</li>
+                        <li><strong>Options:</strong> Toggle background, guides/rulers, and grid visibility in the export</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <h3>Theme</h3>
+                    <p>Toggle between light and dark mode using the sun/moon icon. Your preference is saved automatically.</p>
+                </section>
+            </div>
+        </div>
     </div>
 
     <!-- PDF.js Library -->

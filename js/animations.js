@@ -195,6 +195,10 @@ function applyFoldProgress(progress) {
         case 'gate-fold':
             applyGateFold(panelMeshes, easedProgress, isVertical);
             break;
+            
+        case 'double-gate-fold':
+            applyDoubleGateFold(panelMeshes, easedProgress, isVertical);
+            break;
     }
 }
 
@@ -317,11 +321,12 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
         const nestOffset = (panel2.pivot.userData.panelConfig && panel2.pivot.userData.panelConfig.nestOffset) || 0;
         const offsetAmount = easedPanel2 * (PANEL_Z_OFFSET + nestOffset);
         if (isVertical) {
-            panel2.pivot.position.y = offsetAmount;
-            panel2.pivot.position.z = 0;
+            // Vertical: use position.z for stacking (up/down in world); position.y caused X shifting
+            panel2.pivot.position.y = 0;
+            panel2.pivot.position.z = sign * offsetAmount;
         } else {
-            // Horizontal: use position.z for fold offset to avoid overwriting layout position.y
-            panel2.pivot.position.z = -offsetAmount;
+            // Horizontal: invert stacking for negative progress
+            panel2.pivot.position.z = -sign * offsetAmount;
         }
     }
     
@@ -334,11 +339,12 @@ function applyTriFoldRoll(panelMeshes, progress, isVertical) {
         if (absProgress > 0) {
             const panel1Offset = (PANEL_Z_OFFSET * 2 * easedPanel1) + (easedPanel1 * PANEL_Z_OFFSET);
             if (isVertical) {
-                panel1.pivot.position.y = panel1Offset;
-                panel1.pivot.position.z = 0;
+                // Vertical: use position.z for stacking (up/down in world)
+                panel1.pivot.position.y = 0;
+                panel1.pivot.position.z = sign * panel1Offset;
             } else {
-                // Horizontal: use position.z for fold offset to avoid overwriting layout position.y
-                panel1.pivot.position.z = -panel1Offset;
+                // Horizontal: invert stacking for negative progress
+                panel1.pivot.position.z = -sign * panel1Offset;
             }
         } else {
             if (isVertical) {
@@ -394,6 +400,83 @@ function applyGateFold(panelMeshes, progress, isVertical) {
             // Use a much smaller curve and offset for horizontal
             const yCurve = Math.sin(progress * Math.PI) * 0.08; // Reduced from 0.6
             panel2.pivot.position.z = -((progress * PANEL_Z_OFFSET * 2.1) + yCurve);
+        }
+    }
+}
+
+/**
+ * Apply double gate fold animation
+ * 4 panels with staged animation:
+ * 0-50%: Outer panels (0, 3) fold 180° inward onto center panels
+ * 50-100%: Right side (panels 2, 3) folds onto left side at center spine
+ * @param {Array} panelMeshes 
+ * @param {number} progress 
+ * @param {boolean} isVertical
+ */
+function applyDoubleGateFold(panelMeshes, progress, isVertical) {
+    if (panelMeshes.length < 4) return;
+    
+    // Handle negative progress
+    const absProgress = Math.abs(progress);
+    const sign = progress >= 0 ? 1 : -1;
+    
+    // Stage 1 (0-50%): Outer panels fold 180° inward
+    // Stage 2 (50-100%): Right center folds onto left center at spine
+    const outerProgress = Math.min(1, absProgress * 2); // 0-50% -> 0-100%
+    const spineProgress = Math.max(0, (absProgress - 0.5) * 2); // 50-100% -> 0-100%
+    
+    const easedOuter = easeInOutCubic(outerProgress);
+    const easedSpine = easeInOutCubic(spineProgress);
+    
+    // Panels: 0=LeftOuter, 1=LeftCenter (base), 2=RightCenter, 3=RightOuter
+    const leftOuter = panelMeshes[0];
+    const rightCenter = panelMeshes[2];
+    const rightOuter = panelMeshes[3];
+    
+    // Outer panels fold 180° inward
+    const outerFoldAngle = sign * easedOuter * Math.PI;
+    // Spine fold 180° (right side folds onto left)
+    const spineFoldAngle = sign * easedSpine * Math.PI;
+    
+    // Offsets for stacking (same values for both orientations)
+    const outerZBias = easedOuter * PANEL_Z_OFFSET * 1.5;
+    const outerCurve = Math.sin(outerProgress * Math.PI) * 0.15;
+    const spineZBias = easedSpine * PANEL_Z_OFFSET * 3;
+    const spineCurve = Math.sin(spineProgress * Math.PI) * 0.25;
+    
+    // Left outer panel folds inward (right)
+    if (leftOuter && leftOuter.pivot) {
+        if (isVertical) {
+            leftOuter.pivot.rotation.y = -outerFoldAngle;
+            leftOuter.pivot.position.y = 0;
+            leftOuter.pivot.position.z = -sign * (outerZBias + outerCurve);
+        } else {
+            leftOuter.pivot.rotation.x = -outerFoldAngle;
+            leftOuter.pivot.position.z = -sign * (outerZBias + outerCurve);
+        }
+    }
+    
+    // Right outer panel folds inward (left)
+    if (rightOuter && rightOuter.pivot) {
+        if (isVertical) {
+            rightOuter.pivot.rotation.y = outerFoldAngle;
+            rightOuter.pivot.position.y = 0;
+            rightOuter.pivot.position.z = -sign * (outerZBias + outerCurve);
+        } else {
+            rightOuter.pivot.rotation.x = outerFoldAngle;
+            rightOuter.pivot.position.z = -sign * (outerZBias + outerCurve);
+        }
+    }
+    
+    // Right center panel folds at spine (carries right outer with it)
+    if (rightCenter && rightCenter.pivot) {
+        if (isVertical) {
+            rightCenter.pivot.rotation.y = spineFoldAngle;
+            rightCenter.pivot.position.y = 0;
+            rightCenter.pivot.position.z = -sign * (spineZBias + spineCurve);
+        } else {
+            rightCenter.pivot.rotation.x = spineFoldAngle;
+            rightCenter.pivot.position.z = -sign * (spineZBias + spineCurve);
         }
     }
 }
