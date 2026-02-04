@@ -20,11 +20,11 @@ let panelMeshes = [];
  * Create the folded paper mesh
  * @param {Object} size - Paper size { width, height }
  * @param {Object} textures - { front: THREE.Texture, back: THREE.Texture }
- * @param {Object} options - { reflectFront: boolean, reflectBack: boolean }
+ * @param {Object} options - { reflectFrontH, reflectBackH, reflectFrontV, reflectBackV }
  * @returns {THREE.Group} The paper mesh group
  */
 export function createFoldMesh(size, textures, options = {}) {
-    const { reflectFront = false, reflectBack = false } = options;
+    const { reflectFrontH = false, reflectBackH = true, reflectFrontV = false, reflectBackV = false } = options;
     // Calculate panel configuration
     const panelConfig = calculatePanels(size);
     
@@ -34,7 +34,7 @@ export function createFoldMesh(size, textures, options = {}) {
     
     // Create each panel
     panelConfig.panels.forEach((panel, index) => {
-        const panelMesh = createPanel(panel, panelConfig, textures, { reflectFront, reflectBack });
+        const panelMesh = createPanel(panel, panelConfig, textures, { reflectFrontH, reflectBackH, reflectFrontV, reflectBackV });
         panelMeshes.push(panelMesh);
     });
     
@@ -62,18 +62,40 @@ export function createFoldMesh(size, textures, options = {}) {
 }
 
 /**
- * Apply horizontal flip to a texture (clone to avoid mutating original)
+ * Apply horizontal and/or vertical flip to a texture (clone to avoid mutating original)
  * @param {THREE.Texture} texture - Source texture
+ * @param {boolean} flipH - Flip horizontally
+ * @param {boolean} flipV - Flip vertically
  * @returns {THREE.Texture} Cloned texture with flip applied, or null
  */
-function cloneTextureWithFlip(texture) {
+function cloneTextureWithFlip(texture, flipH = true, flipV = false) {
     if (!texture) return null;
     const clone = texture.clone();
     clone.wrapS = THREE.RepeatWrapping;
-    clone.wrapT = clone.wrapT || THREE.ClampToEdgeWrapping;
-    clone.repeat.x = -1;
-    clone.offset.x = 1;
+    clone.wrapT = THREE.RepeatWrapping;
+    
+    if (flipH) {
+        clone.repeat.x = -1;
+        clone.offset.x = 1;
+    }
+    if (flipV) {
+        clone.repeat.y = -1;
+        clone.offset.y = 1;
+    }
     return clone;
+}
+
+/**
+ * Apply transformations to texture based on reflect options
+ * @param {THREE.Texture} texture - Source texture
+ * @param {boolean} flipH - Flip horizontally
+ * @param {boolean} flipV - Flip vertically
+ * @returns {THREE.Texture} Transformed texture or original
+ */
+function applyTextureTransforms(texture, flipH, flipV) {
+    if (!texture) return null;
+    if (!flipH && !flipV) return texture;
+    return cloneTextureWithFlip(texture, flipH, flipV);
 }
 
 /**
@@ -81,11 +103,11 @@ function cloneTextureWithFlip(texture) {
  * @param {Object} panel - Panel configuration
  * @param {Object} panelConfig - Full panel config
  * @param {Object} textures - Front and back textures
- * @param {Object} options - { reflectFront, reflectBack }
+ * @param {Object} options - { reflectFrontH, reflectBackH, reflectFrontV, reflectBackV }
  * @returns {Object} Panel mesh with pivot
  */
 function createPanel(panel, panelConfig, textures, options = {}) {
-    const { reflectFront = false, reflectBack = false } = options;
+    const { reflectFrontH = false, reflectBackH = true, reflectFrontV = false, reflectBackV = false } = options;
     const isHorizontalFold = !panelConfig.isVertical;
     
     // panel.width is the dimension along the fold direction
@@ -109,8 +131,8 @@ function createPanel(panel, panelConfig, textures, options = {}) {
     
     // Create materials for front and back (sides swapped: front upload shows on back mesh, back upload on front mesh)
     // Reflect buttons match user's view: reflectFront flips back mesh (shows front upload), reflectBack flips front mesh (shows back upload)
-    const frontTexture = reflectBack && textures.back ? cloneTextureWithFlip(textures.back) : textures.back || null;
-    const backTexture = reflectFront && textures.front ? cloneTextureWithFlip(textures.front) : textures.front || null;
+    const frontTexture = applyTextureTransforms(textures.back, reflectBackH, reflectBackV);
+    const backTexture = applyTextureTransforms(textures.front, reflectFrontH, reflectFrontV);
 
     const frontMaterial = new THREE.MeshStandardMaterial({
         map: frontTexture,
@@ -498,14 +520,14 @@ export function getPanelMeshes() {
 /**
  * Update textures on existing mesh
  * @param {Object} textures - { front, back }
- * @param {Object} options - { reflectFront, reflectBack }
+ * @param {Object} options - { reflectFrontH, reflectBackH, reflectFrontV, reflectBackV }
  */
 export function updateTextures(textures, options = {}) {
     if (!panelMeshes || panelMeshes.length === 0) return;
     
-    const { reflectFront = false, reflectBack = false } = options;
-    const frontTexture = reflectBack && textures.back ? cloneTextureWithFlip(textures.back) : textures.back || null;
-    const backTexture = reflectFront && textures.front ? cloneTextureWithFlip(textures.front) : textures.front || null;
+    const { reflectFrontH = false, reflectBackH = true, reflectFrontV = false, reflectBackV = false } = options;
+    const frontTexture = applyTextureTransforms(textures.back, reflectBackH, reflectBackV);
+    const backTexture = applyTextureTransforms(textures.front, reflectFrontH, reflectFrontV);
 
     panelMeshes.forEach(meshData => {
         if (meshData.frontMesh) {

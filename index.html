@@ -69,12 +69,12 @@
             <div class="sidebar-header">
                 <h1>Foldproof</h1>
                 <div class="header-buttons">
-                    <button id="help-toggle" class="icon-btn" title="Help">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    </button>
                     <button id="theme-toggle" class="icon-btn" title="Toggle Dark/Light Mode">
                         <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></svg>
                         <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <button id="help-toggle" class="icon-btn" title="Help">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     </button>
                 </div>
             </div>
@@ -134,15 +134,68 @@
                     </span>
                 </label>
 
-                <div class="reflect-toggles" style="margin-top: 8px;">
-                    <label class="toggle-item">
-                        <input type="checkbox" id="reflect-front">
-                        <span class="toggle-label">Reflect front</span>
-                    </label>
-                    <label class="toggle-item">
-                        <input type="checkbox" id="reflect-back">
-                        <span class="toggle-label">Reflect back</span>
-                    </label>
+                <div class="panel-subsection reflect-subsection">
+                    <h3 class="subsection-heading">Flip Images</h3>
+                    <div class="reflect-section">
+                    <div class="reflect-row">
+                        <span class="reflect-row-label">Front Image</span>
+                        <div class="reflect-buttons">
+                            <label class="reflect-btn" title="Flip front horizontally">
+                                <input type="checkbox" id="reflect-front-h">
+                                <span class="reflect-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/>
+                                        <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+                                        <path d="M12 3v18" stroke-dasharray="2 2"/>
+                                        <path d="M7 8l-3 4 3 4"/>
+                                        <path d="M17 8l3 4-3 4"/>
+                                    </svg>
+                                </span>
+                            </label>
+                            <label class="reflect-btn" title="Flip front vertically">
+                                <input type="checkbox" id="reflect-front-v">
+                                <span class="reflect-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/>
+                                        <path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/>
+                                        <path d="M3 12h18" stroke-dasharray="2 2"/>
+                                        <path d="M8 7l4-3 4 3"/>
+                                        <path d="M8 17l4 3 4-3"/>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="reflect-row">
+                        <span class="reflect-row-label">Back Image</span>
+                        <div class="reflect-buttons">
+                            <label class="reflect-btn" title="Flip back horizontally">
+                                <input type="checkbox" id="reflect-back-h" checked>
+                                <span class="reflect-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/>
+                                        <path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/>
+                                        <path d="M12 3v18" stroke-dasharray="2 2"/>
+                                        <path d="M7 8l-3 4 3 4"/>
+                                        <path d="M17 8l3 4-3 4"/>
+                                    </svg>
+                                </span>
+                            </label>
+                            <label class="reflect-btn" title="Flip back vertically">
+                                <input type="checkbox" id="reflect-back-v">
+                                <span class="reflect-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3"/>
+                                        <path d="M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/>
+                                        <path d="M3 12h18" stroke-dasharray="2 2"/>
+                                        <path d="M8 7l4-3 4 3"/>
+                                        <path d="M8 17l4 3 4-3"/>
+                                    </svg>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    </div>
                 </div>
             </section>
 
@@ -283,7 +336,7 @@
 
             <section class="panel about-panel" id="about-panel">
                 <button type="button" class="about-toggle" id="about-toggle" aria-expanded="false">
-                    <h2>About</h2>
+                    <h2>About & Privacy</h2>
                     <span class="about-chevron">▾</span>
                 </button>
                 <div class="about-content" id="about-content" hidden>
@@ -296,6 +349,16 @@
                         <li><strong>Print guides</strong> — Trim, bleed, safe zone, fold lines, ruler</li>
                         <li><strong>Export</strong> — Save viewport as JPG, PNG (transparent), or PDF</li>
                     </ul>
+                    
+                    <h3 class="about-subheading">Privacy & Data</h3>
+                    <p class="about-privacy">Foldproof runs entirely in your browser. <strong>No data is collected, stored, or transmitted to any server.</strong></p>
+                    <ul class="about-features">
+                        <li><strong>Your files stay local</strong> — Uploaded images and PDFs are processed client-side only and never leave your device</li>
+                        <li><strong>No accounts or tracking</strong> — No sign-ups, no analytics, no cookies for tracking</li>
+                        <li><strong>Local storage</strong> — Only your theme preference (light/dark) is saved in your browser's localStorage</li>
+                        <li><strong>No data retention</strong> — Refreshing or closing the page clears all uploaded content from memory</li>
+                    </ul>
+                    <p class="about-disclaimer"><em>Disclaimer: This tool is provided "as is" for preview purposes. Always verify final print output with your printer. The developer assumes no responsibility for print errors or file compatibility issues.</em></p>
                 </div>
             </section>
 
@@ -349,14 +412,16 @@
                 </div>
                 
                 <div class="export-toolbar">
-                    <button type="button" id="export-btn" class="export-btn" title="Export viewport">Export</button>
-                    <div class="export-dropdown" id="export-dropdown" hidden>
+                    <div class="export-btn-wrap">
+                        <button type="button" id="screenshot-btn" class="export-btn" title="Capture viewport">Screenshot</button>
+                        <div class="export-dropdown" id="screenshot-dropdown" hidden>
                         <div class="export-option">
                             <label>Format</label>
                             <select id="export-format">
                                 <option value="jpg">JPG</option>
                                 <option value="png">PNG (transparent)</option>
                                 <option value="pdf">PDF</option>
+                                <option value="gif">Animated GIF</option>
                             </select>
                         </div>
                         <div class="export-option">
@@ -377,8 +442,10 @@
                                 <span class="toggle-label">Show guides & rulers</span>
                             </label>
                         </div>
-                        <button type="button" id="export-apply" class="btn btn-primary">Export</button>
+                        <button type="button" id="screenshot-apply" class="btn btn-primary">Capture</button>
+                        </div>
                     </div>
+                    <button type="button" id="export-btn" class="export-btn" title="Export source images">Export</button>
                 </div>
             </div>
 
@@ -419,6 +486,89 @@
                 <div class="controls-bar-overlay" id="controls-bar-overlay" aria-hidden="true"></div>
             </div>
         </main>
+    </div>
+
+    <!-- Export Source Images Modal -->
+    <div id="source-export-modal" class="modal" hidden>
+        <div class="modal-overlay" id="source-export-overlay"></div>
+        <div class="modal-content source-export-modal-content">
+            <button class="modal-close" id="source-export-close" title="Close">&times;</button>
+            <h2>Export Source Images</h2>
+            <p class="source-export-intro">Export full-resolution images with transformations applied. Useful for quick prepress edits without dedicated software.</p>
+            
+            <div class="source-export-form">
+                <div class="source-export-row">
+                    <label for="source-export-format">Format</label>
+                    <select id="source-export-format">
+                        <option value="png">PNG</option>
+                        <option value="jpg">JPG</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                </div>
+                
+                <div class="source-export-row" id="source-export-output-row">
+                    <label>Output</label>
+                    <div class="source-export-output-options">
+                        <label class="toggle-item">
+                            <input type="radio" name="source-export-output" value="multiple" checked>
+                            <span class="toggle-label">Separate files (front, back)</span>
+                        </label>
+                        <label class="toggle-item" id="source-export-combined-wrap" style="display: none;">
+                            <input type="radio" name="source-export-output" value="combined">
+                            <span class="toggle-label">Single PDF (front + back pages)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="source-export-transform-section">
+                    <h3>Front Image</h3>
+                    <div class="source-export-transform-row">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="source-front-flip-h">
+                            <span class="toggle-label">Flip horizontal</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="source-front-flip-v">
+                            <span class="toggle-label">Flip vertical</span>
+                        </label>
+                        <label class="toggle-item">
+                            <span class="toggle-label">Rotate:</span>
+                            <select id="source-front-rotate">
+                                <option value="0">0°</option>
+                                <option value="90">90° CW</option>
+                                <option value="180">180°</option>
+                                <option value="-90">90° CCW</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="source-export-transform-section">
+                    <h3>Back Image</h3>
+                    <div class="source-export-transform-row">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="source-back-flip-h" checked>
+                            <span class="toggle-label">Flip horizontal</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="source-back-flip-v">
+                            <span class="toggle-label">Flip vertical</span>
+                        </label>
+                        <label class="toggle-item">
+                            <span class="toggle-label">Rotate:</span>
+                            <select id="source-back-rotate">
+                                <option value="0">0°</option>
+                                <option value="90">90° CW</option>
+                                <option value="180">180°</option>
+                                <option value="-90">90° CCW</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" id="source-export-apply" class="btn btn-primary" style="width: 100%; margin-top: 16px;">Export</button>
+            </div>
+        </div>
     </div>
 
     <!-- Help Modal -->
@@ -491,16 +641,16 @@
                 <section class="help-section">
                     <h3>Image Adjustments</h3>
                     <ul>
-                        <li><strong>Reflect Front/Back:</strong> Mirror the front or back image horizontally.</li>
+                        <li><strong>Reflect buttons:</strong> Use the flip buttons next to each image row to mirror horizontally (↔) or vertically (↕). Active buttons are highlighted.</li>
                     </ul>
                 </section>
 
                 <section class="help-section">
-                    <h3>Export</h3>
-                    <p>Click the Export button in the viewport to save your preview:</p>
+                    <h3>Screenshot & Export</h3>
+                    <p>Two buttons in the top-right of the viewport:</p>
                     <ul>
-                        <li><strong>Format:</strong> Choose JPG, PNG (with transparency), or PDF</li>
-                        <li><strong>Options:</strong> Toggle background, guides/rulers, and grid visibility in the export</li>
+                        <li><strong>Screenshot:</strong> Capture the current 3D view as JPG, PNG, PDF, or Animated GIF with optional background, guides, and grid. The GIF option records the full fold animation cycle (-100% to 100%) from the current camera angle.</li>
+                        <li><strong>Export:</strong> Opens a modal to export full-resolution source images with transformations (format, flips, rotation) at viewport size and orientation</li>
                     </ul>
                 </section>
 
@@ -522,7 +672,8 @@
             "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
             "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
             "pdfjs-dist": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs",
-            "jspdf": "https://esm.sh/jspdf@2.5.1"
+            "jspdf": "https://esm.sh/jspdf@2.5.1",
+            "gifenc": "https://esm.sh/gifenc@1.0.3"
         }
     }
     </script>

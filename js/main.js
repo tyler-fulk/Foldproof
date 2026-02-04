@@ -239,8 +239,10 @@ function onFoldTypeChanged(foldType) {
 
 function getReflectState() {
     return {
-        reflectFront: document.getElementById('reflect-front')?.checked ?? false,
-        reflectBack: document.getElementById('reflect-back')?.checked ?? false
+        reflectFrontH: document.getElementById('reflect-front-h')?.checked ?? false,
+        reflectBackH: document.getElementById('reflect-back-h')?.checked ?? true,
+        reflectFrontV: document.getElementById('reflect-front-v')?.checked ?? false,
+        reflectBackV: document.getElementById('reflect-back-v')?.checked ?? false
     };
 }
 
@@ -369,22 +371,17 @@ function setupGridToggle() {
 }
 
 function setupReflectToggles() {
-    const reflectFront = document.getElementById('reflect-front');
-    const reflectBack = document.getElementById('reflect-back');
-    if (reflectFront) {
-        reflectFront.addEventListener('change', () => {
-            if (hasAnyImages()) {
-                updateTextures(currentTextures, getReflectState());
-            }
-        });
-    }
-    if (reflectBack) {
-        reflectBack.addEventListener('change', () => {
-            if (hasAnyImages()) {
-                updateTextures(currentTextures, getReflectState());
-            }
-        });
-    }
+    const reflectIds = ['reflect-front-h', 'reflect-back-h', 'reflect-front-v', 'reflect-back-v'];
+    reflectIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                if (hasAnyImages()) {
+                    updateTextures(currentTextures, getReflectState());
+                }
+            });
+        }
+    });
 }
 
 /**
