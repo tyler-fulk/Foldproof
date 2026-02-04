@@ -1,4 +1,4 @@
-# Foldproof - 3D Print Fold Preview
+# <img src="assets/favicon.png" width="32" height="32"> Foldproof - 3D Print Fold Preview
 
 A web application for visualizing folded print layouts in 3D. Upload front and back images of your print design, select the paper size and fold type, then preview the result with interactive 3D animations.
 
