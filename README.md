@@ -1,5 +1,7 @@
 # <img src="assets/favicon.png" width="32" height="32"> Foldproof - 3D Print Fold Preview
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A web application for visualizing folded print layouts in 3D. Upload front and back images of your print design, select the paper size and fold type, then preview the result with interactive 3D animations.
 
 **Live demo:** [tyler-fulk.github.io/Foldproof](https://tyler-fulk.github.io/Foldproof/)
@@ -154,6 +156,10 @@ Push to a GitHub repository and enable Pages in Settings → Pages. The app will
 - PDF.js for PDF rendering
 - jsPDF for PDF export
 - No build step required
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 — see the [LICENSE](LICENSE) file for details.
 
 ---
 
